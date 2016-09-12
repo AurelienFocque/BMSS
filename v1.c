@@ -1,7 +1,6 @@
 
 #include "pari/pari.h"
 #include "pari/paripriv.h"
-#include <time.h>
 #define BMSSPREC 1
 //THESE TWO FONCTIONS ARE USEFULL FOR NEWTON ITERATIONS
 static int find_size(int l)
