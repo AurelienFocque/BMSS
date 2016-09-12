@@ -2,7 +2,7 @@
 #include "pari/pari.h"
 #include "pari/paripriv.h"
 #include <time.h>
-
+#define BMSSPREC 1
 //THESE TWO FONCTIONS ARE USEFULL FOR NEWTON ITERATIONS
 static int find_size(int l)
 {   
@@ -657,7 +657,7 @@ static GEN D_from_HGCD(GEN R,int l,GEN T, GEN p)
 
 GEN find_kernel_LS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN T,GEN p,GEN pp,long e)
 //requires both the isogeny to be normalized and separable.
-//suitable for padics when 2*l>pp.
+//suitable for padics when pp<l+2*BMSSPREC.
 //doesn't require sigma known.
 //returns the kernelpolynomial.
 {   
@@ -773,10 +773,8 @@ GEN FqXn_exp(GEN f,int n,GEN T,GEN p)
 GEN find_kernel_BMSS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)
 // requires the isogeny to be separable normalized.
 // assumes l is odd and pp1 is the sum of the kernel abscissaes.
-//requires p>ell+2*ext.
+//requires p>ell+2*BMSSPREC.
 {	
-  const long ext=1;
-  //ext denotes the number of extra coefficients calculated to check the result.
   if(l==3)
   {
     return FqX_sub(mkpoln(2,Fq_ui(1,T,p),Fq_ui(0,T,p)),mkpoln(1,pp1),T,p);
@@ -784,13 +782,13 @@ GEN find_kernel_BMSS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)
   GEN Ge;
   GEN G=mkpoln(4,a6,a4,Fq_ui(0,T,p),Fq_ui(1,T,p));
   GEN H=mkpoln(4,b6,b4,Fq_ui(0,T,p),Fq_ui(1,T,p));
-  GEN S=find_S((l+1)/2+1+ext,G,H,T,p,p,1);
+  GEN S=find_S((l+1)/2+1+BMSSPREC,G,H,T,p,p,1);
   GEN Sd;
   S=RgX_shift(S,-1);
-  Sd=FqXn_inv(S,(l-1)/2+1+ext,T,p);
+  Sd=FqXn_inv(S,(l-1)/2+1+BMSSPREC,T,p);
   Ge=FqX_NewtonGen(Sd,l,a4,a6,pp1,T,p);	
   Ge=FqX_neg(Ge,T,p);
-  Ge=FqXn_exp(Ge,(l+1)/2+ext,T,p);
+  Ge=FqXn_exp(Ge,(l+1)/2+BMSSPREC,T,p);
   Ge=RgX_recip(Ge);
   Ge=normalizepol(Ge);
   if(lg(Ge)==(l-1)/2+3){return Ge;}
