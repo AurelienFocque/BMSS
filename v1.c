@@ -210,7 +210,7 @@ static GEN FqX_mul2(GEN P,GEN T,GEN p)
   return ret;
 }
 
-static GEN FqX_modXn(GEN P,int n,GEN T,GEN p)// works in Fq
+static GEN FqX_modXn(GEN P,int n,GEN T,GEN p)
 {	
   if(T!=NULL)
   {
@@ -628,7 +628,6 @@ static GEN D_from_euclide_truncated(GEN R,int l,GEN T, GEN p)
     r0=tmp;
   }
   r1=FqX_normalize(RgX_recip(r1),T,p);
-  if(Fq_issquare(gel(r1,2),T,p)==0){gerepileall(ltop,0);return NULL;}
   gerepileupto(avma,r1);
   return r1;
 }
@@ -645,11 +644,6 @@ static GEN D_from_HGCD(GEN R,int l,GEN T, GEN p)
   //ret stands for N.reverse() atm
   ret=FqXn_mul(FqX_red(ret,T,p),FqX_modXn(R,l,T,p),l,T,p);
   ret=FqX_normalize(RgX_recip(ret),T,p);
-  if(Fq_issquare(gel(ret,2),T,p)==0)
-  {
-    gerepileupto(avma,0);
-    return NULL;
-  }
   gerepileupto(avma,ret);
   return ret;
 }
@@ -673,8 +667,8 @@ GEN find_kernel_LS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN T,GEN p,GEN pp,long e)
     D=D_from_euclide_truncated(R,l,T,pp);
   if(l>=120)
     D=D_from_HGCD(R,l,T,pp);	
-  if(D==NULL){return NULL;}
   D=FqXn_sqrt(D,l,T,pp);
+  if(D==NULL){return NULL;}
   D=FqX_normalize(D,T,pp);	
   if(degree(D)!=(l-1)/2){gerepileupto(ltop,0);return NULL;}
   gerepileupto(avma,D);
@@ -796,41 +790,41 @@ GEN find_kernel_BMSS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)
 }
 
 int main()
-{	//bug dans find_eigen_value
-	pari_init(10000000000,2);
-	//EXEMPLE 1 LERCIER SIRVENT cf. https://hal.inria.fr/tel-00377306/document
-	GEN pp=mkintn(1,5);	
-	GEN a4=mkintn(1,1);
-	GEN a6=mkintn(1,4);
-	GEN b4=gneg(mkintn(1,7329));
-	GEN b6=gneg(mkintn(1,3934));
-	int l =11;
-	int e = 6;
-	pari_printf("Premier exemple de Lercier Sirvent\nkerpoly=%Ps\n",find_kernel_LS(a4,a6,l,b4,b6,NULL,gpowgs(pp,3),pp,3));
-	//EXEMPLE 2 LERCIER SIRVENT
-	pp=mkintn(1,7);
-	GEN T=mkpoln(6,gen_1,gen_0,gen_0,gen_0,gen_1,mkintn(1,4));
-	a4=mkpoln(4,mkintn(1,5),mkintn(1,2),mkintn(1,4),mkintn(1,6));
-	a6=mkpoln(5,mkintn(1,6),mkintn(1,4),mkintn(1,5),mkintn(1,3),mkintn(1,4));
-	b4=mkpoln(5,gneg(mkintn(1,104574295)),gneg(mkintn(1,111798340)),gneg(mkintn(1,21387164
-)),gneg(mkintn(1,24214869)),mkintn(1,36208471));
-	b6=mkpoln(5,mkintn(1,88497100),mkintn(1,47971900),mkintn(1,32578586),mkintn(1,122102312),gneg(mkintn(1,83236646)));
-	e=3;l=47;
-	b4=Fq_red(b4,T,gpowgs(pp,e));
-	b6=Fq_red(b6,T,gpowgs(pp,e));
-	pari_printf("Second exemple de Lercier Sirvent\nkerpoly=%Ps\n",find_kernel_LS(a4,a6,l,b4,b6,T,gpowgs(pp,e),pp,e));
-  
-	// EXEMPLE DE BMSS cf. http://arxiv.org/abs/cs/0609020
-	GEN p=mkintn(1,101);
-	l=11;
-	T=NULL;
-	GEN sig=mkintn(1,25);
-	a4=gen_1;
-	a6=gen_1;
-	b4=mkintn(1,75);
-	b6=mkintn(1,16);
-	pari_printf("Exemple BMSS\nkerpoly=%Ps\n",find_kernel_BMSS(a4, a6,l, b4, b6, sig,T,p));
-	
-	gerepileupto(avma,0);
-	return 0;
+{	
+  pari_init(10000000000,2);
+  //EXEMPLE 1 LERCIER SIRVENT cf. https://hal.inria.fr/tel-00377306/document
+  GEN pp=mkintn(1,5);	
+  GEN a4=mkintn(1,1);
+  GEN a6=mkintn(1,4);
+  GEN b4=gneg(mkintn(1,7329));
+  GEN b6=gneg(mkintn(1,3934));
+  int l =11;
+  int e = 6;
+  pari_printf("Premier exemple de Lercier Sirvent\nkerpoly=%Ps\n",find_kernel_LS(a4,a6,l,b4,b6,NULL,gpowgs(pp,3),pp,3));
+  //EXEMPLE 2 LERCIER SIRVENT
+  pp=mkintn(1,7);
+  GEN T=mkpoln(6,gen_1,gen_0,gen_0,gen_0,gen_1,mkintn(1,4));
+  a4=mkpoln(4,mkintn(1,5),mkintn(1,2),mkintn(1,4),mkintn(1,6));
+  a6=mkpoln(5,mkintn(1,6),mkintn(1,4),mkintn(1,5),mkintn(1,3),mkintn(1,4));
+  b4=mkpoln(5,gneg(mkintn(1,104574295)),gneg(mkintn(1,111798340)),gneg(mkintn(1,21387164
+  )),gneg(mkintn(1,24214869)),mkintn(1,36208471));
+  b6=mkpoln(5,mkintn(1,88497100),mkintn(1,47971900),mkintn(1,32578586),mkintn(1,122102312),gneg(mkintn(1,83236646)));
+  e=3;l=47;
+  b4=Fq_red(b4,T,gpowgs(pp,e));
+  b6=Fq_red(b6,T,gpowgs(pp,e));
+  pari_printf("Second exemple de Lercier Sirvent\nkerpoly=%Ps\n",find_kernel_LS(a4,a6,l,b4,b6,T,gpowgs(pp,e),pp,e));
+
+  // EXEMPLE DE BMSS cf. http://arxiv.org/abs/cs/0609020
+  GEN p=mkintn(1,101);
+  l=11;
+  T=NULL;
+  GEN sig=mkintn(1,25);
+  a4=gen_1;
+  a6=gen_1;
+  b4=mkintn(1,75);
+  b6=mkintn(1,16);
+  pari_printf("Exemple BMSS\nkerpoly=%Ps\n",find_kernel_BMSS(a4, a6,l, b4, b6, sig,T,p));
+
+  gerepileupto(avma,0);
+  return 0;
 }
