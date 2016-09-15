@@ -1,0 +1,8 @@
+Function: qfnorm
+Section: linear_algebra
+C-Name: qfnorm
+Prototype: GDG
+Obsolete: 2016-08-08
+Help: qfnorm(x,{q}): this function is obsolete, use qfeval.
+ at x; if q omitted, use the standard Euclidean form.
+Doc: this function is obsolete, use \kbd{qfeval}.

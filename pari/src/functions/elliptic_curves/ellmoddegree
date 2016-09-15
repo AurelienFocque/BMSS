@@ -1,0 +1,12 @@
+Function: ellmoddegree
+Section: elliptic_curves
+C-Name: ellmoddegree
+Prototype: Gb
+Help: ellmoddegree(e): e being an elliptic curve defined over Q output by
+  ellinit, compute the modular degree of e divided by the square of the
+  Manin constant. Return [D, err], where D is a rational number and
+  err is the exponent of the truncation error.
+Doc: $e$ being an elliptic curve defined over $\Q$ output by \kbd{ellinit},
+  compute the modular degree of $e$ divided by the square of
+  the Manin constant. Return $[D, err]$, where $D$ is a rational number and
+  err is exponent of the truncation error.

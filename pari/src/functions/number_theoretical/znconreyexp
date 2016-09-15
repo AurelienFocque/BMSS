@@ -1,0 +1,36 @@
+Function: znconreyexp
+Section: number_theoretical
+C-Name: znconreyexp
+Prototype: GG
+Help: znconreyexp(bid, chi): Conrey exponential attached to bid =
+ idealstar(,q). Returns the element m in (Z/qZ)^* attached to the character
+ chi on bid: znconreylog(bid, m) = chi.
+Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
+ \kbd{bid = idealstar(,q)}), this function returns the Conrey exponential of
+ the character \var{chi}: it returns the integer
+ $m \in (\Z/q\Z)^*$ such that \kbd{znconreylog(\var{bid}, $m$)} is \var{chi}.
+
+ The character \var{chi} is given either as a
+
+ \item \typ{VEC}: in terms of the generators \kbd{\var{bid}.gen};
+
+ \item \typ{COL}: a Conrey logarithm.
+
+ \bprog
+ ? G = idealstar(,126000)
+ ? znconreylog(G,1)
+ %2 = [0, 0, 0, 0, 0]~
+ ? znconreyexp(G,%)
+ %3 = 1
+ ? G.cyc \\ SNF generators
+ %4 = [300, 12, 2, 2, 2]
+ ? chi = [100, 1, 0, 1, 0]; \\ some random character on SNF generators
+ ? znconreylog(G, chi)  \\ in terms of Conrey generators
+ %6 = [0, 3, 3, 0, 2]~
+ ? znconreyexp(G, %)  \\ apply to a Conrey log
+ %7 = 18251
+ ? znconreyexp(G, chi) \\ ... or a char on SNF generators
+ %8 = 18251
+ ? znconreychar(G,%)
+ %9 = [100, 1, 0, 1, 0]
+ @eprog

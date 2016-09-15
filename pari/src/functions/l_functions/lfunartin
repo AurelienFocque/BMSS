@@ -1,0 +1,48 @@
+Function: lfunartin
+Section: l_functions
+C-Name: lfunartin
+Prototype: GGGL
+Help: lfunartin(nf,gal,M,n): returns the Ldata structure attached to the
+ Artin L-function attached to the representation R of the Galois group
+ of the extension K/Q, defined over the cyclotomic field Q(zeta_n),
+ where nf is the nfinit structure attached to K,
+ gal is the galoisinit structure attached to K/Q, and M is the vector
+ of the image of the generators G.gen by R. The elements of M are matrices
+ with polynomial entries, whose variable is understood as the complex
+ number exp(2*I*Pi/n).
+Doc: returns the \kbd{Ldata} structure attached to the
+ Artin $L$-function attached to the representation $\rho$ of the Galois group
+ of the extension $K/\Q$, defined over the cyclotomic field $\Q(\zeta_n)$,
+ where \var{nf} is the nfinit structure attached to $K$,
+ \var{gal} is the galoisinit structure attached to $K/\Q$, and $M$ is
+ the vector of the image of the generators \kbd{\var{gal}.gen} by $\rho$.
+ The elements of $M$ are matrices with polynomial entries, whose variable
+ is understood as the complex number $\exp(2\*i\*\pi/n)$.
+
+ In the following example we build the Artin $L$-functions attached to the two
+ irreducible degree $2$ representations of the dihedral group $D_{10}$ defined
+ over $\Q(\zeta_5)$, for the extension $H/\Q$ where $H$ is the Hilbert class
+ field of $\Q(\sqrt{-47})$.
+ We show numerically some identities involving Dedekind $\zeta$ functions and
+ Hecke $L$ series.
+ \bprog
+ ? P = quadhilbert(-47);
+ ? N = nfinit(nfsplitting(P));
+ ? G = galoisinit(N);
+ ? L1 = lfunartin(N,G, [[a,0;0,a^-1],[0,1;1,0]], 5);
+ ? L2 = lfunartin(N,G, [[a^2,0;0,a^-2],[0,1;1,0]], 5);
+ ? s = 1 + x + O(x^4);
+ ? lfun(1,s)*lfun(-47,s)*lfun(L1,s)^2*lfun(L2,s)^2 - lfun(N,s)
+ %6 ~ 0
+ ? lfun(1,s)*lfun(L1,s)*lfun(L2,s) - lfun(P,s)
+ %7 ~ 0
+ ? bnr = bnrinit(bnfinit(x^2+47),1,1);
+ ? lfun([bnr,[1]], s) - lfun(L1, s)
+ %9 ~ 0
+ ? lfun([bnr,[1]], s) - lfun(L1, s)
+ %10 ~ 0
+ @eprog
+ The first identity is the factorisation of the regular representation of
+ $D_{10}$, the second the factorisation of the natural representation of
+ $D_{10}\subset S_5$, the next two are the expressions of the degree $2$
+ representations as induced from degree $1$ representations.

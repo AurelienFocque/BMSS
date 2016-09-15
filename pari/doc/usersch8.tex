@@ -1,0 +1,144 @@
+% Copyright (c) 2015  The PARI Group
+%
+% This file is part of the PARI/GP documentation
+%
+% Permission is granted to copy, distribute and/or modify this document
+% under the terms of the GNU General Public License
+\chapter{$L$-functions}
+
+\section{Accessors}
+
+\fun{long}{is_linit}{GEN data}
+
+\fun{GEN}{ldata_get_an}{GEN ldata}
+
+\fun{GEN}{ldata_get_dual}{GEN ldata}
+
+\fun{long}{ldata_isreal}{GEN ldata}
+
+\fun{GEN}{ldata_get_gammavec}{GEN ldata}
+
+\fun{long}{ldata_get_degree}{GEN ldata}
+
+\fun{long}{ldata_get_k}{GEN ldata}
+
+\fun{GEN}{ldata_get_conductor}{GEN ldata}
+
+\fun{GEN}{ldata_get_rootno}{GEN ldata}
+
+\fun{GEN}{ldata_get_residue}{GEN ldata}
+
+\fun{GEN}{ldata_vecan}{GEN ldata, long L, long prec}
+
+\fun{long}{ldata_get_type}{GEN ldata}
+
+\fun{long}{linit_get_type}{GEN linit}
+
+\fun{GEN}{linit_get_ldata}{GEN linit}
+
+\fun{GEN}{linit_get_tech}{GEN linit}
+
+\fun{GEN}{lfun_get_domain}{GEN tech}
+
+\fun{GEN}{lfun_get_dom}{GEN tech}
+
+\fun{long}{lfun_get_bitprec}{GEN tech}
+
+\fun{GEN}{lfun_get_factgammavec}{GEN tech}
+
+\fun{GEN}{lfun_get_step}{GEN tech}
+
+\fun{GEN}{lfun_get_pol}{GEN tech}
+
+\fun{GEN}{lfun_get_Residue}{GEN tech}
+
+\fun{GEN}{lfun_get_k2}{GEN tech}
+
+\fun{GEN}{lfun_get_w2}{GEN tech}
+
+\fun{GEN}{lfun_get_expot}{GEN tech}
+
+\fun{long}{lfun_get_der}{GEN tech}
+
+\fun{long}{lfun_get_bitprec}{GEN tech}
+
+\fun{long}{lfunisvgaell}{GEN Vga, long flag}
+
+\fun{GEN}{lfunprod_get_fact}{GEN tech}
+
+\fun{GEN}{theta_get_an}{GEN tdata}
+
+\fun{GEN}{theta_get_K}{GEN tdata}
+
+\fun{GEN}{theta_get_R}{GEN tdata}
+
+\fun{long}{theta_get_bitprec}{GEN tdata}
+
+\fun{long}{theta_get_m}{GEN tdata}
+
+\fun{GEN}{theta_get_tdom}{GEN tdata}
+
+\fun{GEN}{theta_get_sqrtN}{GEN tdata}
+
+\section{Conversions and constructors}
+
+\fun{GEN}{lfunmisc_to_ldata}{GEN ldata}
+
+\fun{GEN}{lfunmisc_to_ldata_shallow}{GEN ldata}
+
+\fun{GEN}{lfunrtopoles}{GEN r}
+
+\fun{int}{sdomain_isincl}{GEN dom, GEN dom0}
+
+\section{Variants of GP functions}
+
+\fun{GEN}{lfun}{GEN ldata, GEN s, long bitprec}
+
+\fun{GEN}{lfuninit}{GEN ldata, GEN dom, long der, long bitprec}
+
+\fun{GEN}{lfuninit_make}{long t, GEN ldata, GEN molin, GEN domain}
+
+\fun{GEN}{lfunlambda}{GEN ldata, GEN s, long bitprec}
+
+\fun{long}{lfunthetacost}{GEN ldata, GEN tdom, long m, long bitprec}:
+ \kbd{lfunthetacost0} when the first argument is known to be an \kbd{Ldata}.
+
+\fun{GEN}{lfunthetacheckinit}{GEN data, GEN tinf, long m, long *ptbitprec, long fl}
+
+\fun{GEN}{lfunrootno}{GEN data, long bitprec}
+
+\fun{GEN}{lfunzetakinit}{GEN pol, GEN dom, long der, long flag, long bitprec}
+
+\fun{GEN}{lfunellmfpeters}{GEN E, long bitprec}
+
+\fun{GEN}{ellanalyticrank}{GEN E, long prec} DEPRECATED.
+
+\fun{GEN}{ellL1}{GEN E, long prec} DEPRECATED.
+
+\section{Inverse Mellin transforms of Gamma products}
+
+\fun{GEN}{gammamellininv}{GEN Vga, GEN s, long m, long bitprec}
+
+\fun{GEN}{gammamellininvinit}{GEN Vga, long m, long bitprec}
+
+\fun{GEN}{gammamellininvrt}{GEN K, GEN s, long bitprec}
+
+\fun{double}{dbllambertW0}{double a}
+
+\fun{double}{dbllambertW_1}{double a}
+
+\fun{double}{dbllemma526}{double a, double b, double c, long B}
+
+\fun{double}{dblcoro526}{double a, double c, long B}
+
+\newpage
+
+\chapter{Modular symbols}
+
+\fun{void}{checkms}{GEN W} raise an exception if $W$ is not an \var{ms}
+structure from \kbd{msinit}.
+
+\fun{void}{checkmspadic}{GEN W} raise an exception if $W$ is not an
+\var{mspadic} structure from \kbd{mspadicinit}.
+
+\newpage

@@ -1,0 +1,104 @@
+Function: lfuncreate
+Section: l_functions
+C-Name: lfuncreate
+Prototype: G
+Help: lfuncreate(obj): Given either an object such as a polynomial, elliptic
+ curve, Dirichlet or Hecke character, eta quotient, etc., or an explicit
+ 6 or 7 component vector [dir,real,Vga,k,N,eps,r],
+ create the Ldata structure necessary for lfun computation.
+Doc: This low-level routine creates \tet{Ldata} structures, needed by
+ \var{lfun} functions, describing an $L$-function and its functional equation.
+ You are urged to use a high-level constructor when one is available,
+ and this function accepts them, see \kbd{??lfun}:
+ \bprog
+ ? L = lfuncreate(1); \\ Riemann zeta
+ ? L = lfuncreate(5); \\ Dirichlet L-function for quadratic character (5/.)
+ ? L = lfuncreate(x^2+1); \\ Dedekind zeta for Q(i)
+ ? L = lfuncreate(ellinit([0,1])); \\ L-function of E/Q: y^2=x^3+1
+ @eprog\noindent One can then use, e.g., \kbd{Lfun(L,s)} to directly
+ evaluate the respective $L$-functions at $s$, or \kbd{lfuninit(L, [c,w,h]}
+ to initialize computations in the rectangular box $\Re(s-c) \leq w$,
+ $\Im(s) \leq h$.
+
+ We now describe the low-level interface, used to input non-builtin
+ $L$-functions. The input is now a $6$ or $7$ component vector
+ $V=[a,astar,Vga,k,N,eps,poles]$, whose components are as follows:
+
+ \item \kbd{V[1]=a} encodes the Dirichlet series coefficients. The
+ preferred format is a closure of arity 1: \kbd{n->vector(n,i,a(i))} giving
+ the vector of the first $n$ coefficients. The closure is allowed to return
+ a vector of more than $n$ coefficients (only the first $n$ will be
+ considered) or even less than $n$, in which case loss of accuracy will occur
+ and a warning that \kbd{\#an} is less than expected is issued. This
+ allows to precompute and store a fixed large number of Dirichlet
+ coefficients in a vector $v$ and use the closure \kbd{n->v}, which
+ does not depend on $n$. As a shorthand for this latter case, you can input
+ the vector $v$ itself instead of the closure.
+
+ A second format is limited to multiplicative $L$ functions affording an
+ Euler product. It is a closure of arity 2 \kbd{(p,d)->L(p)} giving the local
+ factor $L_p$ at $p$ as a rational function, to be evaluated at $p^{-s}$ as in
+ \kbd{direuler}; $d$ is set to the floor of $\log_p(n)$, where $n$ is the
+ total number of Dirichlet coefficients $(a_1,\dots,a_n)$ that will be
+ computed in this way. This parameter $d$ allows to compute only part of $L_p$
+ when $p$ is large and $L_p$ expensive to compute, but it can of course be
+ ignored by the closure.
+
+ Finally one can describe separately the generic Dirichlet coefficients
+ and the bad local factors by setting $\kbd{dir} = [an, [p_1,L^{-1}_{p_1}],
+ \dots,[p_k,L^{-1}_{p_k}]]$, where \kbd{an} describes the generic coefficients
+ in one of the two formats above, except that coefficients $a_n$ with
+ $p_i \mid n$ for some $i \leq k$ will be ignored. The subsequent pairs $[p,
+ L_p^{-1}]$ give the bad primes and corresponding \emph{inverse} local
+ factors.
+
+ \item \kbd{V[2]=astar} is the Dirichlet series coefficients of the dual
+ function, encoded as \kbd{a} above. The sentinel values $0$ and $1$ may
+ be used for the special cases where $a = a^*$ and $a = \overline{a^*}$,
+ respectively.
+
+ \item \kbd{V[3]=Vga} is the vector of $\alpha_j$ such that the gamma
+ factor of the $L$-function is equal to
+ $$\gamma_A(s)=\prod_{1\le j\le d}\Gamma_{\R}(s+\alpha_j),$$
+ where $\Gamma_{\R}(s)=\pi^{-s/2}\Gamma(s/2)$.
+ This same syntax is used in the \kbd{gammamellininv} functions.
+ In particular the length $d$ of \kbd{Vga} is the degree of the $L$-function.
+ In the present implementation, the $\alpha_j$ are assumed to be exact
+ rational numbers. However when calling theta functions with \emph{complex}
+ (as opposed to real) arguments, determination problems occur which may
+ give wrong results when the $\alpha_j$ are not integral.
+
+ \item \kbd{V[4]=k} is a positive integer $k$. The functional equation relates
+ values at $s$ and $k-s$. For instance, for an Artin $L$-series such as a
+ Dedekind zeta function we have $k = 1$, for an elliptic curve $k = 2$, and
+ for a modular form, $k$ is its weight. For motivic $L$-functions, the
+ \emph{motivic} weight $w$ is $w = k-1$.
+
+ \item \kbd{V[5]=N} is the conductor, an integer $N\ge1$, such that
+ $\Lambda(s)=N^{s/2}\gamma_A(s)L(s)$ with $\gamma_A(s)$ as above.
+
+ \item \kbd{V[6]=eps} is the root number $\varepsilon$, i.e., the
+ complex number (usually of modulus $1$) such that
+ $\Lambda(a, k-s) = \varepsilon \Lambda(a^*, s)$.
+
+ \item The last optional component \kbd{V[7]=poles} encodes the poles of the
+ $L$ or $\Lambda$-functions, and is omitted if they have no poles.
+ A polar part is given by a list of $2$-component vectors
+ $[\beta,P_{\beta}(x)]$, where
+ $\beta$ is a pole and the power series $P_{\beta}(x)$ describes
+ the attached polar part, such that $L(s) - P_\beta(s-\beta)$ is holomorphic
+ in a neighbourhood of $\beta$. For instance $P_\beta = r/x+O(1)$ for a
+ simple pole at $\beta$ or $r_1/x^2+r_2/x+O(1)$ for a double pole.
+ The type of the list describing the polar part allows to distinguish between
+ $L$ and $\Lambda$: a \typ{VEC} is attached to $L$, and a \typ{COL}
+ is attached to $\Lambda$.
+
+ The latter is mandatory unless $a = \overline{a^*}$ (coded by \kbd{astar}
+ equal to $0$ or $1$): otherwise, the poles of $L^*$ cannot be infered from
+ the poles of $L$ ! (Whereas the functional equation allows to deduce
+ the polar part of $\Lambda^*$ from the polar part of $\Lambda$.)
+ The special coding $\kbd{poles} = r$ a complex scalar is available in this
+ case, to describe a $L$ function with at most a single simple pole at $s =
+ k$ and residue $r$. (This is the usual situation, for instance for Dedekind
+ zeta functions.) This value $r$ can be set to $0$ if unknown, and it will be
+ computed.

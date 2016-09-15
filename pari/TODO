@@ -1,0 +1,127 @@
+This file lists the things that ought to be implemented / fixed.  Most
+items require major work, and some may not be that desireable after all.
+If you intend to work on any of these things, have a look at
+README-git and drop an email to pari-dev.
+
+Priority classification (first column): [subjective and debatable]
+3    as soon as possible
+2    nice to have
+1    probably not
+0    no
+-    unclassified
+
+***************************   BUGS (general)     ****************************
+Unless specified otherwise, examples assume 32bit machine and default precision
+
+2  factorback should not accept [;] since matrix(0,2) is the only valid
+   form of an empty matrix input, corresponding e.g to factor(1). But the
+   empty matrix is used in many places as a marker for a void factorization.
+   This convention should be encapsulated; then we may declare [;] invalid
+   input.
+
+2  some functions assume MAXVARN is a free variable, yielding bogus
+   results if the input involves it (only affects library programming).
+
+1  recursive plot easily fooled. One could split intervals in 3 + make sure
+   size of neighbouring intervals don't differ too much.
+
+1  O(x) * y --> O(x)
+   O(y) * x --> O(y) * x
+   [ design flaw in the current model for multivariate power series. Some work
+   to change it, no application for this in the current PARI code... ]
+
+***************************   BUGS (GP specific) ****************************
+
+2  external prettyprinter tex2mail: on a fast machine with a slow 'perl',
+   the external prettyprinter does not return quickly enough and a new prompt
+   has already been printed.
+   ? default(output,3)
+     output = 3 (external prettyprint)
+   ? 1
+   ?  \\ THEN, %1 = 1 is printed.
+
+   gphelp is not affected by the problem since it prints an 'ugly_kludge'
+   string to tell the caller (gp) that it is finished [it should use 'wait'
+   instead, but less portable]. tex2mail just uses a delay loop [prettyp_wait].
+   Note that tex2mail is always running in the background whereas gphelp is
+   restarted everytime.
+
+***************************  DOCUMENTATION    ****************************
+
+2  document the innards of PARI (entree, pariFILE, bloc, ...)
+
+***************************   ALGORITHMS      ****************************
+
+Kernel:
+=======
+2  implement Jebelean-Krandick diviiexact
+
+2  implement Mulders/Hanrot-Zimmermann Karatsuba short product t_REAL * t_REAL
+
+2  benchmark / profile basic functions and see what needs to be done
+
+2  inline level0 routines should operate on _limbs_, not on words.
+
+2  FFT for basic types and polynomials (say in A[X], for A = Z, F_q, ...)
+
+Misc:
+=====
+-  add an optional argument to content, denominator, numerator to specify
+   the main variable
+
+2  decent (non-prime) finite field package [ esp. in small characteristic ]
+
+2  rnfkummer (non-prime degree)
+
+2  nfsubfields [use known subfields to discard blocs right away]
+
+2  merge quadclassunit and bnfinit
+
+2  p-adic ellztopoint
+
+***************************   LIBRARY DESIGN   ****************************
+
+3  add a 'variable' as an optional last argument in content, denominator,
+   numerator, as is done in divrem (cf. 2.6.2)
+
+3  remove all dependencies on types ordering [if (typ(x) < t_POL) ...]
+
+2  a system of DEBUGLEVEL classes [e.g \g 5 "LLL" ] (such that the user can
+   easily define new ones)
+
+2  rename library functions following GP names
+
+2  introduce "special" types for objects which are really containers and
+   should be defined by a secondary type (e.g number fields, finite fields,
+   p-adic fields, elliptic curves, ...). Would keep list of types small
+   (and fast)
+
+2  sparse representations for multivariate polynomials and matrices.
+
+2  type "element in" ([number|finite] field...), "point" on elliptic curve
+
+2  find a way to deal (generically) with "integral object + its content"
+   [ rational arithmetic would be much more efficient, when polynomials or
+     matrices are involved. Currently, the content is being recomputed all
+     the time, removed, then multiplied back in ]
+
+1  have some header magic (transparently) prepend some prefix (e.g "pari_")
+   before all exported functions to prevent name conflicts. Build alias
+   files for debuggers
+
+***************************   GP DESIGN       ****************************
+
+2  Allow GP to trap an OS signal. Suppose that gp runs, say in nohup mode, and
+   it takes several days to complete the program. In meantime several things
+   can happen resulting in shutdown of the machine. On shutdown all programs
+   receive SIGTERM signal. I would like gp to be able to trap this signal and
+   when it receives one, to execute some gp command, e.g saving all settings
+   with full accuracy (e.g writebin).
+
+2  write an analog of the 'echo' default which would print code as it is
+   _executed_, not as it is read
+
+2  possibility to save and load a session (variables, functions, defaults)
+
+2  a type t_FILE [current: stream re-opened/flushed/closed after every single
+   write(): disaster when one wants to write often to the same file]

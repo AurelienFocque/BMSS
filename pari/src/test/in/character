@@ -1,0 +1,51 @@
+G=[15,5]; chi=[1,1];
+charker(G,chi)
+charconj(G,chi)
+charorder(G,chi)
+
+G=idealstar(,100); a=[1,0];
+A=znconreylog(G,a);
+m=znconreyexp(G,a);
+charker(G,a)
+charker(G,A)
+charker(G,m)
+charconj(G,a)
+charconj(G,A)
+charconj(G,m)
+charorder(G,a)
+charorder(G,A)
+charorder(G,m)
+b=[12,1];
+B=znconreylog(G,b);
+n=znconreyexp(G,b);
+charmul(G,n,m)
+charmul(G,a,b)
+charmul(G,A,B)
+charmul(G,a,B)
+charmul(G,a,n)
+charmul(G,m,B)
+
+chardiv(G,n,m)
+chardiv(G,a,b)
+chardiv(G,A,B)
+chardiv(G,a,B)
+chardiv(G,a,n)
+chardiv(G,m,B)
+
+test(G)=
+{
+  my(N = G.mod,D);
+  print("* ",N);
+  for(i=1,N,
+    if(gcd(N,i)!=1,next);
+    D = znchartokronecker(G,i);if (!D,next);
+    D0 = znchartokronecker(G,i,1);
+    print(i,": ",[D,D0]); chi = znconreylog(G,i);
+    if (vector(N,j,kronecker(D,j)) != vector(N,j,chareval(G,chi,j,[-1,2])),
+      error(D))
+  );
+}
+test(G)
+test(znstar(8,1))
+test(znstar(5,1))
+test(znstar(1,1))

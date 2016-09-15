@@ -1,0 +1,108 @@
+% Copyright (c) 2007-2016 Karim Belabas.
+% Permission is granted to copy, distribute and/or modify this document
+% under the terms of the GNU General Public License
+
+% Reference Card for PARI-GP, Algebraic Number Theory.
+% Author:
+%  Karim Belabas
+%  Universite de Bordeaux, 351 avenue de la Liberation, F-33405 Talence
+%  email: Karim.Belabas@math.u-bordeaux.fr
+%
+% See refcard.tex for acknowledgements and thanks.
+\def\TITLE{Modular forms, modular symbols}
+\input refmacro.tex
+
+\section{Modular Forms}
+
+To be completed later.
+\bigskip
+
+\section{Modular Symbols}
+Let $G = \Gamma_0(N)$, $V_k = \QQ[X,Y]_{k-2}$. We let
+$\Delta = \text{Div}^0(\PP^1(\QQ))$; an element of $\Delta$ is a \emph{path}
+between cusps of $X_0(N)$ via the identification $[b]-[a] \to $ the path from
+$a$ to $b$. A path is coded by the pair $[a,b]$, where $a,b$ are rationals
+or \kbd{oo}, denoting the point at infinity $(1:0)$.\hfil\break
+
+Let $\MM_k(G) = \Hom_G(\Delta, V_k) \simeq H^1_c(X_0(G),V_k)$;
+an element of $\MM_k(G)$ is a $V_k$-valued \emph{modular symbol}.
+There is a natural decomposition $\MM_k(G) = \MM_k(G)^+ \oplus \MM_k(G)^-$
+under the action of the $*$ involution, induced by complex conjugation.
+The \kbd{msinit} function computes either $\MM_k$ ($\varepsilon = 0$) or
+its $\pm$-parts ($\varepsilon = \pm1$) and fixes a minimal
+set of $\ZZ[G]$-generators $(g_i)$ of $\Delta$.\hfil\break
+
+\li{initialize $M = \MM_k(\Gamma_0(N))^\varepsilon$}
+   {msinit$(N,k,\{\varepsilon=0\})$}
+\li{the level $M$}{msgetlevel$(M)$}
+\li{the weight $k$}{msgetweight$(M)$}
+\li{the sign $\varepsilon$}{msgetsign$(M)$}
+\smallskip
+
+\li{$\ZZ[G]$-generators and relations for $\Delta$}{mspathgens$(M)$}
+\li{Decompose $p = [a,b]$ on the $(g_i)$}{mspathlog$(M,p)$}
+\smallskip
+
+\subsec{Create a symbol}
+\li{Eisenstein symbol attached to cusp $c$}{msfromcusp$(M,c)$}
+\li{Cuspidal symbol attached to $E/\QQ$}{msfromell$(E)$}
+\li{symbol having given Hecke eigenvalues}{msfromhecke$(M,v,\{H\})$}
+\li{is $s$ a symbol ?}{msissymbol$(M,s)$}
+\li{the list of all $s(g_i)$}{mseval$(M,s)$}
+\li{evaluate symbol $s$ on path $p=[a,b]$}{mseval$(M,s,p)$}
+
+\subsec{Operators}
+An operator is given by a matrix of a fixed $\QQ$-basis. $H$, if given, is a
+stable $\QQ$-subspace of $\MM_k(G)$: operator is restricted to $H$.\hfil\break
+\li{matrix of Hecke operator $T_p$ or $U_p$}{mshecke$(M,p,\{H\})$}
+\li{matrix of Atkin-Lehner $w_Q$}{msatkinlehner$(M,Q\{H\})$}
+\li{matrix of the $*$ involution}{msstar$(M,\{H\})$}
+
+\subsec{Subspaces} A subspace is given by a structure allowing
+quick projection and restriction of linear operators. Its fist
+component is a matrix with integer coefficients whose columns for a
+$\QQ$-basis. If $H$ is a Hecke-stable subspace of $M_k(G)^+$ or $M_k(G)^-$,
+it can be split into a direct sum of Hecke-simple subspaces.
+To a simple subspace corresponds a single normalized newform
+$\sum_n a_n q^n$.
+\hfil\break
+\li{cuspidal subspace $S_k(G)^\varepsilon$}{mscuspidal$(M)$}
+\li{Eisenstein subspace $E_k(G)^\varepsilon$}{mseisenstein$(M)$}
+\li{new part of $S_k(G)^\varepsilon$}{msnew$(M)$}
+\li{split $H$ into simple subspaces (of dim $\leq d$)}{mssplit$(M,H,\{d\})$}
+\li{$(a_1,\dots, a_B)$ for attached newform}
+   {msqexpansion$(M, H, \{B\})$}
+
+\medskip
+\subsec{Overconvergent symbols and $p$-adic $L$ functions}
+Let $M$ be a full modular symbol space given by \kbd{msinit}
+and $p$ be a prime. To a classical modular symbol $\phi$ of level $N$
+($v_p(N)\leq 1$), which is an eigenvector for $T_p$ with non-zero eigenvalue
+$a_p$, we can attach a $p$-adic $L$-function $L_p$. The function $L_p$
+is defined on continuous characters of $\text{Gal}(\QQ(\mu_{p^\infty})/\QQ)$;
+in GP we allow characters $\langle \chi \rangle^{s_1} \tau^{s_2}$, where
+$(s_1,s_2)$ are integers, $\tau$ is the Teichm\"uller character and $\chi$ is
+the cyclotomic character.
+
+The symbol $\phi$ can be lifted to an \emph{overconvergent} symbol $\Phi$,
+taking values in spaces of $p$-adic distributions (represented in GP by a
+list of moments modulo $p^n$).
+
+\kbd{mspadicinit} precomputes data used to lift symbols. If $\fl$ is given,
+it speeds up the computation by assuming that $v_p(a_p) = 0$ if $\fl = 0$
+(fastest), and that $v_p(a_p) \geq \fl$ otherwise (faster as $\fl$ increases).
+
+\kbd{mspadicmoments} computes distributions \var{mu} attached to $\Phi$
+allowing to compute $L_p$ to high accuracy.
+
+\li{initialize $\var{Mp}$ to lift symbols}{mspadicinit$(M,p,n,\{\fl\})$}
+\li{lift symbol $\phi$}{mstooms$(\var{Mp}, \phi)$}
+\li{eval overconvergent symbol $\Phi$ on path $p$}{msomseval$(\var{Mp},\Phi,p)$}
+\li{\var{mu} for $p$-adic $L$-functions}
+   {mspadicmoments$(\var{Mp}, S, \{D=1\})$}
+\li{$L_p^{(r)}(\chi^s)$, $s = [s_1,s_2]$}
+   {mspadicL$(\var{mu}, \{s = 0\}, \{r = 0\})$}
+\li{$\hat{L}_p(\tau^i)(x)$}{mspadicseries$(\var{mu}, \{i = 0\})$}
+
+\copyrightnotice
+\bye

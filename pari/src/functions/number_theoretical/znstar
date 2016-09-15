@@ -1,0 +1,45 @@
+Function: znstar
+Section: number_theoretical
+C-Name: znstar0
+Prototype: GD0,L,
+Help: znstar(n,{flag=0}): 3-component vector v = [no,cyc,gen], giving the
+ structure of the abelian group (Z/nZ)^*;
+ no is the order (i.e. eulerphi(n)), cyc is a vector of cyclic components,
+ and gen is a vector giving the corresponding generators.
+Doc: gives the structure of the multiplicative group $(\Z/n\Z)^*$.
+ The output $G$ depends on the value of \fl:
+
+ \item $\fl = 0$ (default), an abelian group structure $[h,d,g]$,
+ where $h = \phi(n)$ is the order (\kbd{G.no}), $d$ (\kbd{G.cyc})
+ is a $k$-component row-vector $d$ of integers $d_i$ such that $d_i>1$,
+ $d_i \mid d_{i-1}$ for $i \ge 2$ and
+ $$ (\Z/n\Z)^* \simeq \prod_{i=1}^k (\Z/d_i\Z), $$
+ and $g$ (\kbd{G.gen}) is a $k$-component row vector giving generators of
+ the image of the cyclic groups $\Z/d_i\Z$.
+
+ \item $\fl = 1$ the result is a \kbd{bid} structure without generators
+ (which are well defined but not explicitly computed, which saves time);
+ this allows computing discrite logarithms using \tet{znlog} (also in the
+ non-cyclic case!).
+
+ \item $\fl = 2$ same as $\fl = 1$ with generators.
+
+ \bprog
+ ? G = znstar(40)
+ %1 = [16, [4, 2, 2], [Mod(17, 40), Mod(21, 40), Mod(11, 40)]]
+ ? G.no   \\ eulerphi(40)
+ %2 = 16
+ ? G.cyc  \\ cycle structure
+ %3 = [4, 2, 2]
+ ? G.gen  \\ generators for the cyclic components
+ %4 = [Mod(17, 40), Mod(21, 40), Mod(11, 40)]
+ ? apply(znorder, G.gen)
+ %5 = [4, 2, 2]
+ @eprog\noindent According to the above definitions, \kbd{znstar(0)} is
+ \kbd{[2, [2], [-1]]}, corresponding to $\Z^*$.
+
+Variant: Instead the above hardcoded numerical flags, one should rather use
+ \fun{GEN}{ZNstar}{GEN N, long flag}, where \kbd{flag} is
+ an or-ed combination of \tet{nf_GEN} (include generators) and \tet{nf_INIT}
+ (return a full \kbd{bid}, not a group), possibly $0$. This offers
+ one more combination: no gen and no init.

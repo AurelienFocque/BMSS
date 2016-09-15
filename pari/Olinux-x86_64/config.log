@@ -1,0 +1,71 @@
+This file contains messages produced while configuring
+  pari-2.8.0 [ development 19497-d8b350e ]
+to aid debugging if Configure makes a mistake. Command line was
+  > ./Configure --prefix=/home/aurelien/local2 --with-gmp=/home/aurelien/local2
+
+/usr/bin/gcc -o linux-x86_64-ansi7907 ansi.c
+/usr/bin/gcc -o linux-x86_64-gnu7907 gnu.c
+/usr/bin/gcc -fno-strict-aliasing -o linux-x86_64-gnu7907 gnu.c
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer endian.c -o linux-x86_64-endian7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_exp2.c -o linux-x86_64-tmp7907 -lm
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_log2.c -o linux-x86_64-tmp7907 -lm
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_strftime.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_getrusage.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_gettimeofday.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_sigaction.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_TIOCGWINSZ.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_getrlimit.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_stat.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_vsnprintf.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_mmap.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_waitpid.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_setsid.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_getenv.c -o linux-x86_64-tmp7907
+has_getenv.c: In function ‘main’:
+has_getenv.c:2:13: warning: ignoring return value of ‘getenv’, declared with attribute warn_unused_result [-Wunused-result]
+ int main(){ (void)getenv(""); return 0; }
+             ^
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_isatty.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_alarm.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_system.c -o linux-x86_64-tmp7907
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_dlopen.c -o linux-x86_64-tmp7907
+/tmp/cc2zpeqf.o: In function `main':
+has_dlopen.c:(.text.startup+0xf): undefined reference to `dlopen'
+collect2: error: ld returned 1 exit status
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer has_dlopen.c -o linux-x86_64-tmp7907 -ldl
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer -o linux-x86_64-gmp7907 gmp_version.c -L/home/aurelien/local2/lib -lgmp
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer -o linux-x86_64-gmp7907 gmp_mismatch.c -L/home/aurelien/local2/lib -lgmp
+xmkmf
+./Configure: 1: eval: xmkmf: not found
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer -o linux-x86_64-X117907 has_X11.c -lX11
+has_X11.c:1:22: fatal error: X11/Xlib.h: No such file or directory
+ #include <X11/Xlib.h>
+                      ^
+compilation terminated.
+FLTK_LIBS=`fltk-config --ldflags`
+./Configure: 1: eval: fltk-config: not found
+g++ -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer -o linux-x86_64-fltk7907 has_fltk.c
+has_fltk.c:1:19: fatal error: FL/Fl.H: No such file or directory
+ #include <FL/Fl.H>
+                   ^
+compilation terminated.
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer -o linux-x86_64-rlv7907 rl_version.c -lreadline
+rl_version.c:2:31: fatal error: readline/readline.h: No such file or directory
+ #include <readline/readline.h>
+                               ^
+compilation terminated.
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer -o linux-x86_64-rlv7907 rl_version.c -lreadline -ltinfo
+rl_version.c:2:31: fatal error: readline/readline.h: No such file or directory
+ #include <readline/readline.h>
+                               ^
+compilation terminated.
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer -o linux-x86_64-rlv7907 rl_version.c -lreadline -lncurses
+rl_version.c:2:31: fatal error: readline/readline.h: No such file or directory
+ #include <readline/readline.h>
+                               ^
+compilation terminated.
+/usr/bin/gcc -O3 -Wall -fno-strict-aliasing -fomit-frame-pointer -o linux-x86_64-rlv7907 rl_version.c -lreadline -ltermcap
+rl_version.c:2:31: fatal error: readline/readline.h: No such file or directory
+ #include <readline/readline.h>
+                               ^
+compilation terminated.

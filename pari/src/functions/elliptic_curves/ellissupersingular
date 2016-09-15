@@ -1,0 +1,30 @@
+Function: ellissupersingular
+Section: elliptic_curves
+C-Name: ellissupersingular
+Prototype: iGDG
+Help: ellissupersingular(E,{p}): decide whether the elliptic curve E, defined
+ over a number field or a finite field, is supersingular at p or not.
+Doc:
+ Return 1 if the elliptic curve $E$ defined over a number field
+ or a finite field is supersingular at $p$, and $0$ otherwise.
+ If the curve is defined over a number field, $p$ must be explicitly given,
+ and must be a prime number, resp.~a maximal ideal, if the curve is defined
+ over $\Q$, resp.~a general number field: we return $1$ if and only if $E$
+ has supersingular good reduction at $p$.
+
+ Alternatively, $E$ can be given by its $j$-invariant in a finite field. In
+ this case $p$ must be omitted.
+ \bprog
+ ? g = ffprimroot(ffgen(7^5))
+ %1 = x^3 + 2*x^2 + 3*x + 1
+ ? [g^n | n <- [1 .. 7^5 - 1], ellissupersingular(g^n)]
+ %2 = [6]
+
+ ? K = nfinit(y^3-2); P = idealprimedec(K, 2)[1];
+ ? E = ellinit([y,1], K);
+ ? ellissupersingular(E, P)
+ %5 = 1
+ @eprog
+Variant: Also available is
+ \fun{int}{elljissupersingular}{GEN j} where $j$ is a $j$-invariant of a curve
+ over a finite field.

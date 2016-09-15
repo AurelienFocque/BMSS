@@ -1,0 +1,25 @@
+Function: algleftmultable
+Section: algebras
+C-Name: algleftmultable
+Prototype: GG
+Help: algmultable(al,x): left multiplication table of x.
+Doc: Given an element \var{x} in \var{al}, computes its left multiplication
+ table. If \var{x} is given in basis form, returns its multiplication table on
+ the integral basis; if \var{x} is given in algebraic form, returns its
+ multiplication table on the basis corresponding to the algebraic form of
+ elements of \var{al}. In every case, if \var{x} is a \typ{COL} of length $n$,
+ then the output is a $n\times n$ \typ{MAT}.
+ Also accepts a square matrix with coefficients in \var{al}.
+
+ \bprog
+ ? A = alginit(nfinit(y), [-1,-1]);
+ ? algleftmultable(A,[0,1,0,0]~)
+ %2 =
+ [0 -1  1  0]
+
+ [1  0  1  1]
+
+ [0  0  1  1]
+
+ [0  0 -2 -1]
+ @eprog
