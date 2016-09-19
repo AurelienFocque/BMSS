@@ -68,134 +68,6 @@ Zq_div_safe(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
   gerepileupto(avma,Q);
   return Q;
 }
-// HALF-GCD patched for average characteristic //
-static GEN
-FqX_halfgcd_i(GEN x, GEN y,GEN T, GEN p);
-static GEN
-FqX_halfgcd_split(GEN x,GEN y,GEN T,GEN p);
-static GEN 
-FqX_halfgcd(GEN x,GEN y,GEN T,GEN p);
-
-static GEN
-FqX_halfgcd_basecase(GEN a, GEN b,GEN T, GEN p)
-{
-  pari_sp av=avma;
-  GEN u,u1,v,v1;
-  long vx = varn(a);
-  long n = lgpol(a)>>1;
-  u1 = v = pol_0(vx);
-  u = v1 = pol_1(vx);
-  while (lgpol(b)>n)
-  {
-    GEN r, q = FqX_divrem(a,b,T,p, &r);
-    a = b; b = r; swap(u,u1); swap(v,v1);
-    u1 = FqX_sub(u1, FqX_mul(u, q,T, p), T,p);
-    v1 = FqX_sub(v1, FqX_mul(v, q ,T,p), T,p);
-		
-    if (gc_needed(av,2))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"FpX_halfgcd (d = %ld)",degpol(b));
-      gerepileall(av,6, &a,&b,&u1,&v1,&u,&v);
-    }
-		
-  }
-  return gerepilecopy(av, mkmat2(mkcol2(u,u1), mkcol2(v,v1)));
-}
-static GEN
-FqX_addmulmul(GEN u, GEN v, GEN x, GEN y,GEN T, GEN p)
-{
-  return FqX_add(FqX_mul(u, x, T,p),FqX_mul(v, y, T,p), T,p);
-}
-static GEN
-FqXM_FqX_mul2(GEN M, GEN x, GEN y,GEN T, GEN p)
-{
-  GEN res = cgetg(3, t_COL);
-  gel(res, 1) = FqX_addmulmul(gcoeff(M,1,1), gcoeff(M,1,2), x, y,T, p);
-  gel(res, 2) = FqX_addmulmul(gcoeff(M,2,1), gcoeff(M,2,2), x, y,T, p);
-  return res;
-}
-static GEN
-FqXM_mul2(GEN A, GEN B,GEN T, GEN p)
-{
-  GEN A11=gcoeff(A,1,1),A12=gcoeff(A,1,2), B11=gcoeff(B,1,1),B12=gcoeff(B,1,2);
-  GEN A21=gcoeff(A,2,1),A22=gcoeff(A,2,2), B21=gcoeff(B,2,1),B22=gcoeff(B,2,2);
-  GEN M1 = FqX_mul(FqX_add(A11,A22, T,p), FqX_add(B11,B22, T,p), T,p);
-  GEN M2 = FqX_mul(FqX_add(A21,A22, T,p), B11, T,p);
-  GEN M3 = FqX_mul(A11, FqX_sub(B12,B22, T,p), T,p);
-  GEN M4 = FqX_mul(A22, FqX_sub(B21,B11, T,p), T,p);
-  GEN M5 = FqX_mul(FqX_add(A11,A12, T,p), B22, T,p);
-  GEN M6 = FqX_mul(FqX_sub(A21,A11,T, p), FqX_add(B11,B12,T, p), T,p);
-  GEN M7 = FqX_mul(FqX_sub(A12,A22, T,p), FqX_add(B21,B22, T,p), T,p);
-  GEN T1 = FqX_add(M1,M4, T,p), T2 = FqX_sub(M7,M5, T,p);
-  GEN T3 = FqX_sub(M1,M2,T, p), T4 = FqX_add(M3,M6, T,p);
-  retmkmat2(mkcol2(FqX_add(T1,T2,T, p), FqX_add(M2,M4,T, p)),
-            mkcol2(FqX_add(M3,M5,T, p), FqX_add(T3,T4,T, p)));
-}
-
-/* Return [0,1;1,-q]*M */
-static GEN
-FqX_FqXM_qmul(GEN q, GEN M,GEN T, GEN p)
-{
-  GEN u, v, res = cgetg(3, t_MAT);
-  u = FqX_sub(gcoeff(M,1,1), FqX_mul(gcoeff(M,2,1), q, T,p), T,p);
-  gel(res,1) = mkcol2(gcoeff(M,2,1), u);
-  v = FqX_sub(gcoeff(M,1,2), FqX_mul(gcoeff(M,2,2), q,T, p),T, p);
-  gel(res,2) = mkcol2(gcoeff(M,2,2), v);
-  return res;
-}
-static GEN
-matid2_FqXM(long v)
-{
-  retmkmat2(mkcol2(mkpoln(1,pol_1(v)),mkpoln(1,pol_0(v))),
-            mkcol2(mkpoln(1,pol_0(v)),mkpoln(1,pol_1(v))));
-}
-
-static GEN
-FqX_halfgcd_i(GEN x, GEN y,GEN T, GEN p)
-{
-  if (lg(x)<=FpX_HALFGCD_LIMIT) return FqX_halfgcd_basecase(x,y,T,p);
-  return FqX_halfgcd_split(x,y,T,p);
-}
-static GEN
-FqX_halfgcd_split(GEN x, GEN y, GEN T, GEN p)
-{
-  pari_sp av=avma;
-  GEN R, S, V;
-  GEN y1, r, q;
-  long l = lgpol(x), n = l>>1, k;
-  if (lgpol(y)<=n) return matid2_FqXM(varn(x));
-  R = FqX_halfgcd(RgX_shift_shallow(x,-n),RgX_shift_shallow(y,-n),T,p);
-  V = FqXM_FqX_mul2(R,x,y,T,p); y1 = gel(V,2);
-  if (lgpol(y1)<=n) return gerepilecopy(av, R);
-  q = FqX_divrem(gel(V,1), y1,T, p, &r);
-  k = 2*n-degpol(y1);
-  S = FqX_halfgcd(RgX_shift_shallow(y1,-k), RgX_shift_shallow(r,-k),T,p);
-  return gerepileupto(av, FqXM_mul2(S,FqX_FqXM_qmul(q,R,T,p),T,p));
-}
-
-GEN
-FqX_halfgcd(GEN x, GEN y, GEN T,GEN p)
-{
-  pari_sp av = avma;
-  GEN M,q,r;
-
-  if (!signe(x))
-  {
-    long v = varn(x);
-    retmkmat2(mkcol2(pol_0(v),pol_1(v)),
-              mkcol2(pol_1(v),pol_0(v)));
-  }
-  if (degpol(y)<degpol(x)) return FqX_halfgcd_i(x,y,T,p);
-  q = FqX_divrem(y,x,T,p,&r);
-  M = FqX_halfgcd_i(x,r,T,p);
-  gcoeff(M,1,1) = FqX_sub(gcoeff(M,1,1), FqX_mul(q, gcoeff(M,1,2),T, p),T, p);
-  gcoeff(M,2,1) = FqX_sub(gcoeff(M,2,1), FqX_mul(q, gcoeff(M,2,2),T, p),T, p);
-
-  return gerepilecopy(av, M);
-}
-
-
-
 static GEN FqX_mul2(GEN P,GEN T,GEN p)
 {
   if(T!=NULL)
@@ -639,7 +511,7 @@ static GEN D_from_HGCD(GEN R,int l,GEN T, GEN p)
   GEN ret;
   GEN r1=R;
   GEN r0=RgX_shift(mkpoln(1,gen_1),2*l);
-  GEN M=FqX_halfgcd(r0,r1,T, p);
+  GEN M=FpXQX_halfgcd(r0,r1,T, p);
   ret=gel( row(M,2),2);
   //ret stands for N.reverse() atm
   ret=FqXn_mul(FqX_red(ret,T,p),FqX_modXn(R,l,T,p),l,T,p);

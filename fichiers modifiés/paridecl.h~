@@ -550,6 +550,7 @@ GEN     FpX_gcd(GEN x, GEN y, GEN p);
 GEN     FpX_get_red(GEN T, GEN p);
 GEN     FpX_halve(GEN y, GEN p);
 GEN     FpX_halfgcd(GEN x, GEN y, GEN p);
+GEN     FqX_halfgcd(GEN x, GEN y, GEN T,GEN p);
 GEN     FpX_invBarrett(GEN T, GEN p);
 int     FpX_is_squarefree(GEN f, GEN p);
 GEN     FpX_matFrobenius(GEN T, GEN p);

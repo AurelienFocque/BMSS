@@ -269,7 +269,7 @@ static GEN D_from_HGCD(GEN R,int l,GEN T, GEN p)
   GEN ret;
   GEN r1=R;
   GEN r0=RgX_shift(mkpoln(1,gen_1),2*l);
-  GEN M=FpXQX_halfgcd(r0,r1,T, p);
+  GEN M=FqX_halfgcd(r0,r1,T, p);
   ret=gel( row(M,2),2);
   //ret stands for N.reverse() atm
   ret=FqXn_mul(FqX_red(ret,T,p),FqX_modXn(R,l,T,p),l,T,p);
