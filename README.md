@@ -16,6 +16,7 @@ In FpX.c:
 -Some functions (FqX_mulup..) for upper and middle product.
 -Newton inverse iteration and operations on formal series (FqXn_inv, FqXn_sqrt, FqXn_exp, FqXn_log)
 
+
 In ellsea.c:
 BMSSPREC is a macro standing for the number of extra coefficients you want to calculate in order to check the kernel polynomial.
 In the previous version, the division polynomial was calculated to check the result, but it's very slow.
