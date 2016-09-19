@@ -32,6 +32,6 @@ Anyway the previous code with find_kernel didn't work in small caracteristic.
 
 -in find_isogenous, I modified the bound to switch to p-adics. More over, it seems like my algorithm has no/few p-adic lose, so that e=3 has always worked in my tests whereas Lercier Sirvent exemples needed 10 or more.
 
--in order to check my implementation I modified find_isogenous_from_Atkin, in order to avoid zero divisions (returning NULL in pathologic cases of Hensel Lemma, or avoiding the calculation of pp1 when using p-adics), but I think the 3 functions need to be reviewed.
+-in order to check my implementation and try to make SEA work in small caracteristic, I modified find_isogenous_from_Atkin, in order to avoid zero divisions (returning NULL in pathologic cases of Hensel Lemma, or avoiding the calculation of pp1 when using p-adics), and forced to use this function. But I think the 3 functions need to be reviewed.
 
 NB: in some rare cases in low caracteristic, the algorithm didn't end switching between mt_pathological and mt_atkin.
