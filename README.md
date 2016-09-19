@@ -23,8 +23,11 @@ In the previous version, the division polynomial was calculated to check the res
 
 -new function Zq_div_safe, because either the existing function didn't work or I didn't manage to make it work correctly.
 Anyway the previous code with find_kernel didn't work in small caracteristic.
+
 -two functions find_kernel_BMSS and find_kernel_LS, the first one is about 10 times quicker than the second but only works if pp>l. (both are quasi linear, one uses half gcd reconstruction whereas the second uses fast reconstruction from powersums).
+
 -in find_isogenous, I modified the bound to switch to p-adics. More over, it seems like my algorithm has no/few p-adic lose, so that e=3 has always worked in my tests whereas Lercier Sirvent exemples needed 10 or more.
+
 -in order to check my implementation I modified find_isogenous_from_Atkin, in order to avoid zero divisions (returning NULL in pathologic cases of Hensel Lemma, or avoiding the calculation of pp1 when using p-adics), but I think the 3 functions need to be reviewed.
 
 NB: in some rare cases in low caracteristic, the algorithm didn't end switching between mt_pathological and mt_atkin.
