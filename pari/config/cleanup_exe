@@ -1,2 +1,0 @@
-rm -f $exe $exe$exe_suff
-rm -rf $exe.dSYM
