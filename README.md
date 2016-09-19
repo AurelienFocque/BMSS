@@ -12,8 +12,11 @@ List of changes:
 In FpX.c:
 
 -FqX_halfgcd now works in average caracteristic.
+
 -FqXn_mul recoded from the begining, using optimal cutoff (0.7) and suitable for Fq.
+
 -Some functions (FqX_mulup..) for upper and middle product.
+
 -Newton inverse iteration and operations on formal series (FqXn_inv, FqXn_sqrt, FqXn_exp, FqXn_log)
 
 
