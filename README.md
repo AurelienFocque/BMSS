@@ -21,13 +21,14 @@ In FpX.c:
 
 
 In ellsea.c:
+
 BMSSPREC is a macro standing for the number of extra coefficients you want to calculate in order to check the kernel polynomial.
-In the previous version, the division polynomial was calculated to check the result, but it's very slow.
+In the previous version, the division polynomial was calculated modulo the result to check the result, but it's very slow.
 
 -new function Zq_div_safe, because either the existing function didn't work or I didn't manage to make it work correctly.
 Anyway the previous code with find_kernel didn't work in small caracteristic.
 
--two functions find_kernel_BMSS and find_kernel_LS, the first one is about 10 times quicker than the second but only works if pp>l. (both are quasi linear, one uses half gcd reconstruction whereas the second uses fast reconstruction from powersums).
+-two functions find_kernel_BMSS and find_kernel_LS, the first one is about 10 times quicker than the second but only works if pp>l+2*BMSSPREC. (both are quasi linear, one uses half gcd reconstruction whereas the second uses fast reconstruction from powersums).
 
 -in find_isogenous, I modified the bound to switch to p-adics. More over, it seems like my algorithm has no/few p-adic lose, so that e=3 has always worked in my tests whereas Lercier Sirvent exemples needed 10 or more.
 
