@@ -614,19 +614,19 @@ const struct bb_group * get_FpXQ_star(void **E, GEN T, GEN p);
 const struct bb_algebra * get_FpX_algebra(void **E, GEN p, long v);
 const struct bb_algebra * get_FpXQ_algebra(void **E, GEN T, GEN p);
 GEN     random_FpX(long d, long v, GEN p);
-GEN     Fq_ui(int k,GEN T,GEN p);
+GEN     Fq_ui(long k,GEN T,GEN p);
 GEN     FqX_mul2(GEN P,GEN T,GEN p);
 GEN     FqX_div2(GEN P,GEN T,GEN p);
-GEN     FqX_modXn(GEN P,int n,GEN T,GEN p);
+GEN     FqX_modXn(GEN P,long n,GEN T,GEN p);
 GEN     FqXn_mul(GEN f, GEN g, long n,GEN T,GEN p);
 GEN     FqXn_sqr(GEN f, long n,GEN T,GEN p);
-GEN     FqX_mulup(GEN P,GEN Q,int n,GEN T,GEN p);
-GEN     FqX_sqrup(GEN P,int n,GEN T,GEN p);
-GEN     FqX_Newton_iteration_inv(GEN I,GEN P,int t1,int t2,GEN T,GEN p);
-GEN     FqXn_sqrt(GEN P,int n, GEN T,GEN p);
-GEN     FqXn_inv(GEN P, int n,GEN T,GEN p);
-GEN     FqXn_log(GEN g,int n,GEN T,GEN p);
-GEN     FqXn_exp(GEN f,int n,GEN T,GEN p);
+GEN     FqX_mulup(GEN P,GEN Q,long n,GEN T,GEN p);
+GEN     FqX_sqrup(GEN P,long n,GEN T,GEN p);
+GEN     FqX_Newton_iteration_inv(GEN I,GEN P,long t1,long t2,GEN T,GEN p);
+GEN     FqXn_sqrt(GEN P,long n, GEN T,GEN p);
+GEN     FqXn_inv(GEN P, long n,GEN T,GEN p);
+GEN     FqXn_log(GEN g,long n,GEN T,GEN p);
+GEN     FqXn_exp(GEN f,long n,GEN T,GEN p);
 /* FpX_factor.c */
 
 GEN     F2x_factor(GEN f);

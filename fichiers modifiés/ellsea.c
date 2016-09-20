@@ -97,7 +97,7 @@ ZqX_liftroot(GEN f, GEN a, GEN T, GEN p, long e)
   return T ? ZpXQX_liftroot(f, a,T , p, e): ZpX_liftroot(f, a, p, e);
 }
 
-static GEN comp_modxn(GEN H,GEN S,int n,GEN T,GEN p)// HoS=1+a'S(x)^2+b'S(x)^3 
+static GEN comp_modxn(GEN H,GEN S,long n,GEN T,GEN p)// HoS=1+a'S(x)^2+b'S(x)^3 
 {		
   GEN ret;
   GEN tmpol;
@@ -135,7 +135,7 @@ static GEN poly_integrale(GEN P,GEN T,GEN p,GEN pp,long e)
   }
   GEN ret=cgetg(lg(P)+1,t_POL);
   gel(ret,2)=Fq_ui(0,T,p);
-  int k =0;
+  long k =0;
  
   while(k<=d)
   {	
@@ -146,10 +146,10 @@ static GEN poly_integrale(GEN P,GEN T,GEN p,GEN pp,long e)
   return ret;
 }
 //THESE TWO FONCTIONS ARE USEFULL FOR NEWTON ITERATIONS
-static int find_size(int l)
+static long find_size(long l)
 {   
-  int ret=1;
-  int tmp=l;
+  long ret=1;
+  long tmp=l;
   while(tmp>1)
   {
       tmp=tmp>>1;
@@ -158,8 +158,8 @@ static int find_size(int l)
   if(l==(1<<(ret-1))){ret--;}
   return ret;
 }
-static void find_list(int *list,int l)
-{   int*tmp=(list)+(find_size(l));
+static void find_list(long *list,long l)
+{   long *tmp=(list)+(find_size(l));
     *tmp=l;
     while(l>1)
     {
@@ -169,7 +169,7 @@ static void find_list(int *list,int l)
     }
     return;
 }
-static GEN find_S(int m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
+static GEN find_S(long m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
 //inspired of Luka De Feo thesis.
 // requires p<2*m+1
 //returns the approximation of the taylor serie solution of G*(S'^2)=(S/x)*(HoS) mod x^m
@@ -177,10 +177,10 @@ static GEN find_S(int m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
   GEN S;
   GEN ki;
   GEN K;
-  int t=find_size(m)+1;
-  int tab[t];
+  long t=find_size(m)+1;
+  long tab[t];
   find_list(tab,m);
-  int k=1;
+  long k=1;
   //INITIALISATION
   // GS'^2 
   GEN Dn;
@@ -237,7 +237,7 @@ static GEN find_S(int m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
   gerepileupto(avma,S);
   return S;
 }
-static GEN D_from_euclide_truncated(GEN R,int l,GEN T, GEN p)
+static GEN D_from_euclide_truncated(GEN R,long l,GEN T, GEN p)
 //suitable for Fq
 // given R=D.reverse()/N.reverse() mod x^2l return D
 {	
@@ -262,7 +262,7 @@ static GEN D_from_euclide_truncated(GEN R,int l,GEN T, GEN p)
   return r1;
 }
 
-static GEN D_from_HGCD(GEN R,int l,GEN T, GEN p)
+static GEN D_from_HGCD(GEN R,long l,GEN T, GEN p)
 // given R=D.reverse()/N.reverse() mod x^2l return D
 // not suitable for Fq
 {
@@ -283,7 +283,7 @@ static GEN D_from_HGCD(GEN R,int l,GEN T, GEN p)
   return ret;
 }
 
-GEN find_kernel_LS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p,GEN pp,long e)
+GEN find_kernel_LS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p,GEN pp,long e)
 //requires both the isogeny to be normalized and separable.
 //suitable for padics when l+2*BMSSPREC>pp.
 //doesn't require sigma known.
@@ -310,12 +310,12 @@ GEN find_kernel_LS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p,GEN pp,
   return D;
 }
 static
-GEN FqX_NewtonGen(GEN S,int l,GEN a4,GEN a6,GEN pp1,GEN T,GEN p)
+GEN FqX_NewtonGen(GEN S,long l,GEN a4,GEN a6,GEN pp1,GEN T,GEN p)
 {
-  int d =lg(S)-3;
+  long d =lg(S)-3;
   GEN Ge=cgetg(3+d,t_POL);
   gel(Ge,2)=Fq_ui((l-1)/2,T,p);
-  int k =2;
+  long k =2;
   gel(Ge,3)=pp1;	
   gel(Ge,2+k)=Fq_mul(Fq_inv(Fq_ui(4*k-2,T,p),T,p),Fq_sub(gel(S,4+k-2),Fq_mul(a4,Fq_mul(Fq_ui(4*k-6,T,p),gel(Ge,k),T,p),T,p),T,p),T,p);
   k++;
@@ -334,7 +334,7 @@ GEN FqX_NewtonGen(GEN S,int l,GEN a4,GEN a6,GEN pp1,GEN T,GEN p)
 	
   return Ge;
 }
-GEN find_kernel_BMSS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)
+GEN find_kernel_BMSS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)
 // requires the isogeny to be separable normalized.
 // assumes l is odd and pp1 is the sum of the kernel abscissaes.
 //requires p>ell+2*BMSSPREC.
@@ -1778,7 +1778,7 @@ multiple_crt(GEN x, GEN y, GEN q, GEN P)
 /****************************************************************************/
 
 static GEN
-possible_traces(GEN compile, GEN mask, GEN *P, int larger)
+possible_traces(GEN compile, GEN mask, GEN *P, long larger)
 {
   GEN V, Pfinal = gen_1, C = shallowextract(compile, mask);
   long i, lfinal = 1, lC = lg(C), lP;

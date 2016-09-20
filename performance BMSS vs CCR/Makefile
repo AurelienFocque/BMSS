@@ -13,7 +13,7 @@
 #
 
 # change this TARGET to compile your own programs
-TARGET = v1
+TARGET = ccr
 SHELL  = /bin/sh
 
 DBGFLAGS   = -g -Wall

@@ -3,10 +3,10 @@
 #include "pari/paripriv.h"
 #define BMSSPREC 1
 //THESE TWO FONCTIONS ARE USEFULL FOR NEWTON ITERATIONS
-static int find_size(int l)
+static long find_size(long l)
 {   
-  int ret=1;
-  int tmp=l;
+  long ret=1;
+  long tmp=l;
   while(tmp>1)
   {
       tmp=tmp>>1;
@@ -15,8 +15,8 @@ static int find_size(int l)
   if(l==(1<<(ret-1))){ret--;}
   return ret;
 }
-static void find_list(int *list,int l)
-{   int*tmp=(list)+(find_size(l));
+static void find_list(long *list,long l)
+{   long *tmp=(list)+(find_size(l));
     *tmp=l;
     while(l>1)
     {
@@ -27,7 +27,7 @@ static void find_list(int *list,int l)
     return;
 }
 static 
-GEN Fq_ui(int k,GEN T,GEN p)
+GEN Fq_ui(long k,GEN T,GEN p)
 {
   if(T==NULL)
     return mkintn(1,k);
@@ -74,20 +74,20 @@ static GEN FqX_mul2(GEN P,GEN T,GEN p)
   {
 	  return FqX_mulu(P,2,T,p);
   }
-  int d=lg(P)-3;
-  int k=0;
+  long d=lg(P)-3;
+  long k=0;
   GEN ret=cgetg(lg(P),t_POL);
   for(k=0;k<=d;k++)
     gel(ret,2+k)=Fp_red(shifti(gel(P,2+k),1),p);
   return ret;
 }
 
-static GEN FqX_modXn(GEN P,int n,GEN T,GEN p)
+static GEN FqX_modXn(GEN P,long n,GEN T,GEN p)
 {	
   if(T!=NULL)
   {
     GEN ret=RgX_copy(P);
-    int k =n;
+    long k =n;
     while(k<lg(P)-2)
     {	
       gel(ret,2+k)=mkpoln(1,gen_0);
@@ -97,7 +97,7 @@ static GEN FqX_modXn(GEN P,int n,GEN T,GEN p)
     return FqX_red(ret,T,p);
   }
   GEN ret=RgX_copy(P);
-  int k =n;
+  long k =n;
   while(k<lg(P)-2)
   {	
     gel(ret,2+k)=mkintn(1,0);
@@ -107,13 +107,13 @@ static GEN FqX_modXn(GEN P,int n,GEN T,GEN p)
   return RgX_to_FpX(ret,p);
 }
 static 
-GEN RgXn_mul_basecase(GEN P,GEN Q,int n)
+GEN RgXn_mul_basecase(GEN P,GEN Q,long n)
 {
-  int d =lg(P)+lg(Q)-3;
-  int min =(d>n+2)*(n+2)+(d<=n+2)*d;
+  long d =lg(P)+lg(Q)-3;
+  long min =(d>n+2)*(n+2)+(d<=n+2)*d;
   GEN ret=cgetg(min,t_POL);
-  int k=0;
-  int j;
+  long k=0;
+  long j;
   d=min-3;
 
 
@@ -138,13 +138,13 @@ GEN RgXn_mul_basecase(GEN P,GEN Q,int n)
   return ret;
 }
 static 
-GEN RgXn_sqr_basecase(GEN P,int n)
+GEN RgXn_sqr_basecase(GEN P,long n)
 {
-  int d =2*lg(P)-3;
-  int min =(d>n+2)*(n+2)+(d<=n+2)*d;
+  long d =2*lg(P)-3;
+  long min =(d>n+2)*(n+2)+(d<=n+2)*d;
   GEN ret=cgetg(min,t_POL);
-  int k=0;
-  int j;
+  long k=0;
+  long j;
   d=min-3;
 
 	
@@ -174,10 +174,10 @@ GEN RgXn_sqr_basecase(GEN P,int n)
 
   return ret;
 }
-static GEN FqXn_mul_karatsuba(GEN P,GEN Q,int n,GEN T,GEN p)
+static GEN FqXn_mul_karatsuba(GEN P,GEN Q,long n,GEN T,GEN p)
 //doesn't reduce coefficients to be faster, they will be reduced in FqXn_mul
 {	
-  int s=RgX_equal(P,mkpoln(1,gen_0))||RgX_equal(Q,mkpoln(1,gen_0));
+  long s=RgX_equal(P,mkpoln(1,gen_0))||RgX_equal(Q,mkpoln(1,gen_0));
   if(T==NULL)
   {
     if(s){return mkpoln(1,gen_0);}
@@ -192,7 +192,7 @@ static GEN FqXn_mul_karatsuba(GEN P,GEN Q,int n,GEN T,GEN p)
     if(n<35)
       return RgXn_mul_basecase(P,Q,n);
   }
-  int B=(7*n)/10;
+  long B=(7*n)/10;
   GEN ret;
   GEN P1=RgX_shift(FqX_modXn(P,n,T,p),-B);
   GEN Q1=RgX_shift(FqX_modXn(Q,n,T,p),-B);
@@ -207,10 +207,10 @@ static GEN FqXn_mul_karatsuba(GEN P,GEN Q,int n,GEN T,GEN p)
   gerepileupto(avma,ret);
   return ret;
 }
-static GEN FqXn_sqr_karatsuba(GEN P,int n,GEN T,GEN p)
+static GEN FqXn_sqr_karatsuba(GEN P,long n,GEN T,GEN p)
 //doesn't reduce coefficients to be faster, they will be reduced in FqXn_mul
 {	
-  int s=RgX_equal(P,mkpoln(1,gen_0));
+  long s=RgX_equal(P,mkpoln(1,gen_0));
   if(T==NULL)
   {
     if(s){return mkpoln(1,gen_0);}
@@ -225,7 +225,7 @@ static GEN FqXn_sqr_karatsuba(GEN P,int n,GEN T,GEN p)
     if(n<35)
       return RgXn_sqr_basecase(P,n);
   }
-  int B=(7*n)/10;
+  long B=(7*n)/10;
   GEN ret;
   GEN P1=RgX_shift(FqX_modXn(P,n,T,p),-B);
   GEN P2=FqX_modXn(P,B,T,p);
@@ -253,11 +253,11 @@ GEN FqXn_sqr(GEN f, long n,GEN T,GEN p)
   else if(n<80){ret=FqX_red(FqXn_sqr_karatsuba(f,n,T,p),T,p);setvarn(ret,0);return ret;}
   else{return FqX_modXn(FqX_sqr(f,T,p),n,T,p);}
 }
-static GEN FqX_mulup(GEN P,GEN Q,int n,GEN T,GEN p)//works in Fq
+static GEN FqX_mulup(GEN P,GEN Q,long n,GEN T,GEN p)//works in Fq
 // calculate P*Q/x^n (without the low degree coefficients)
 {
 	
-  int d=lg(P)+lg(Q)-5-n;
+  long d=lg(P)+lg(Q)-5-n;
   if(d<=2||d>=110)
   {
     return RgX_shift(FqX_mul(P,Q,T,p),-n);
@@ -268,9 +268,9 @@ static GEN FqX_mulup(GEN P,GEN Q,int n,GEN T,GEN p)//works in Fq
   ret=RgX_shift(ret,d);
   return ret;
 }
-static GEN FqX_sqrup(GEN P,int n,GEN T,GEN p)
+static GEN FqX_sqrup(GEN P,long n,GEN T,GEN p)
 {
-  int d=2*lg(P)-5-n;
+  long d=2*lg(P)-5-n;
   if(d<=2||d>=110)
   {
     return RgX_shift(FqX_sqr(P,T,p),-n);
@@ -282,7 +282,7 @@ static GEN FqX_sqrup(GEN P,int n,GEN T,GEN p)
   ret=RgX_shift(ret,d);
   return ret;
 }
-static GEN FqX_mulup_modxn(GEN P,GEN Q,int t1,int t2,GEN T,GEN p)
+static GEN FqX_mulup_modxn(GEN P,GEN Q,long t1,long t2,GEN T,GEN p)
 // calculate (P*Q/x^t1) mod x^t2 (without the low degree coefficients) 
 {	
   if(t2>110)// compute the whole product is quicker
@@ -292,12 +292,12 @@ static GEN FqX_mulup_modxn(GEN P,GEN Q,int t1,int t2,GEN T,GEN p)
   else
     return FqX_add(FqX_add(FqX_mulup(FqX_modXn(Q,t1,T,p),FqX_modXn(P,t1,T,p),t1,T,p),FqX_add(FqXn_mul(RgX_shift(P,-t1),FqX_modXn(Q,t1,T,p),t2-t1,T,p),FqXn_mul(RgX_shift(Q,-t1),FqX_modXn(P,t1,T,p),t2-t1,T,p),T,p),T,p),RgX_shift(FqXn_mul(RgX_shift(P,-t1),RgX_shift(Q,-t1),t2-2*t1,T,p),t1),T,p);
 }
-static GEN FqX_Newton_iteration_inv(GEN I,GEN P,int t1,int t2,GEN T,GEN p)
+static GEN FqX_Newton_iteration_inv(GEN I,GEN P,long t1,long t2,GEN T,GEN p)
 //given I=1/P mod x^t1 returns 1/P mod x^t2
 {	
   return FqX_sub(I,RgX_shift(FqXn_mul(FqX_mulup_modxn(I,P,t1,t2,T,p),I,t2-t1,T,p),t1),T,p);
 }
-static GEN comp_modxn(GEN H,GEN S,int n,GEN T,GEN p)// HoS=1+a'S(x)^2+b'S(x)^3 
+static GEN comp_modxn(GEN H,GEN S,long n,GEN T,GEN p)// HoS=1+a'S(x)^2+b'S(x)^3 
 {		
   GEN ret;
   GEN tmpol;
@@ -332,10 +332,10 @@ static GEN FqX_div2(GEN P,GEN T,GEN p)
   {
     return FqX_Fq_mul(P,Fq_inv(mkpoln(1,gen_2),T,p),T,p);
   }
-  int d=lg(P)-3;
+  long d=lg(P)-3;
   if(d==-1){return mkpoln(1,gen_0);}
   GEN ret=cgetg(lg(P),t_POL);
-  int k =0;
+  long k =0;
   GEN tmp;
   for(k=0;k<=d;k++)
   {
@@ -353,7 +353,7 @@ static GEN FqX_div2(GEN P,GEN T,GEN p)
   gerepileupto(avma,ret);
   return ret;
 }
-static GEN FqXn_sqrt(GEN P,int n, GEN T,GEN p)
+static GEN FqXn_sqrt(GEN P,long n, GEN T,GEN p)
 // requires find_list,find_size and FqX_Newton_iteration_inv
 {
   if(Fq_issquare(gel(P,2),T,p)==0)
@@ -362,10 +362,10 @@ static GEN FqXn_sqrt(GEN P,int n, GEN T,GEN p)
   GEN k,i;
   ret=mkpoln(1,Fq_sqrt(gel(P,2),T,p));
   i=mkpoln(1,Fq_inv(Fq_mulu(gel(ret,2),2,T,p),T,p));
-  int t=find_size(n)+1;
-  int tab[t];
+  long t=find_size(n)+1;
+  long tab[t];
   find_list(tab,n);
-  int j=0;
+  long j=0;
   while(j<t-1)
   { //we compute the inverse and the sqrt at the same time, ret denotes the sqrt and i the inverse        
     k=FqX_sub(RgX_shift(FqX_modXn(P,tab[j+1],T,p),tab[j]-tab[j+1]),FqX_sqrup(ret,tab[j+1]-tab[j],T,p),T,p);
@@ -377,13 +377,13 @@ static GEN FqXn_sqrt(GEN P,int n, GEN T,GEN p)
   gerepileupto(avma,ret);
   return ret;  
 }
-static GEN FqXn_inv(GEN P, int n,GEN T,GEN p)
+static GEN FqXn_inv(GEN P, long n,GEN T,GEN p)
 {  
   GEN ret=mkpoln(1,Fq_inv(gel(P,2),T,p));
-  int t=find_size(n)+1;
-  int tab[t];
+  long t=find_size(n)+1;
+  long tab[t];
   find_list(tab,n);
-  int k=0;
+  long k=0;
   while(k<t-1)
   {	
     ret=FqX_Newton_iteration_inv(ret,P,tab[k],tab[k+1],T,p);
@@ -402,7 +402,7 @@ static GEN poly_integrale(GEN P,GEN T,GEN p,GEN pp,long e)
   }
   GEN ret=cgetg(lg(P)+1,t_POL);
   gel(ret,2)=Fq_ui(0,T,p);
-  int k =0;
+  long k =0;
  
   while(k<=d)
   {	
@@ -412,7 +412,7 @@ static GEN poly_integrale(GEN P,GEN T,GEN p,GEN pp,long e)
   }
   return ret;
 }
-static GEN find_S(int m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
+static GEN find_S(long m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
 //inspired of Luka De Feo thesis.
 // requires p<2*m+1
 //returns the approximation of the taylor serie solution of G*(S'^2)=(S/x)*(HoS) mod x^m
@@ -420,10 +420,10 @@ static GEN find_S(int m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
   GEN S;
   GEN ki;
   GEN K;
-  int t=find_size(m)+1;
-  int tab[t];
+  long t=find_size(m)+1;
+  long tab[t];
   find_list(tab,m);
-  int k=1;
+  long k=1;
   //INITIALISATION
   // GS'^2 
   GEN Dn;
@@ -480,7 +480,7 @@ static GEN find_S(int m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
   gerepileupto(avma,S);
   return S;
 }
-static GEN D_from_euclide_truncated(GEN R,int l,GEN T, GEN p)
+static GEN D_from_euclide_truncated(GEN R,long l,GEN T, GEN p)
 //suitable for Fq
 // given R=D.reverse()/N.reverse() mod x^2l return D
 {	
@@ -504,7 +504,7 @@ static GEN D_from_euclide_truncated(GEN R,int l,GEN T, GEN p)
   return r1;
 }
 
-static GEN D_from_HGCD(GEN R,int l,GEN T, GEN p)
+static GEN D_from_HGCD(GEN R,long l,GEN T, GEN p)
 // given R=D.reverse()/N.reverse() mod x^2l return D
 // not suitable for Fq
 {
@@ -520,7 +520,7 @@ static GEN D_from_HGCD(GEN R,int l,GEN T, GEN p)
   return ret;
 }
 
-GEN find_kernel_LS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN T,GEN p,GEN pp,long e)
+GEN find_kernel_LS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN T,GEN p,GEN pp,long e)
 //requires both the isogeny to be normalized and separable.
 //suitable for padics when pp<l+2*BMSSPREC.
 //doesn't require sigma known.
@@ -548,12 +548,12 @@ GEN find_kernel_LS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN T,GEN p,GEN pp,long e)
 }
 
 static
-GEN FqX_NewtonGen(GEN S,int l,GEN a4,GEN a6,GEN pp1,GEN T,GEN p)
+GEN FqX_NewtonGen(GEN S,long l,GEN a4,GEN a6,GEN pp1,GEN T,GEN p)
 {
-  int d =lg(S)-3;
+  long d =lg(S)-3;
   GEN Ge=cgetg(3+d,t_POL);
   gel(Ge,2)=Fq_ui((l-1)/2,T,p);
-  int k =2;
+  long k =2;
   gel(Ge,3)=pp1;	
   gel(Ge,2+k)=Fq_mul(Fq_inv(Fq_ui(4*k-2,T,p),T,p),Fq_sub(gel(S,4+k-2),Fq_mul(a4,Fq_mul(Fq_ui(4*k-6,T,p),gel(Ge,k),T,p),T,p),T,p),T,p);
   k++;
@@ -583,7 +583,7 @@ GEN FqX_primitive(GEN P,GEN T,GEN p)
   }
   GEN ret=cgetg(lg(P)+1,t_POL);
   gel(ret,2)=Fq_ui(0,T,p);
-  int k=1;
+  long k=1;
   while(k<=lg(P)-2)
   {
     gel(ret,2+k)=Fq_mul(Fq_inv(Fq_ui(k,T,p),T,p),gel(P,2+k-1),T,p);
@@ -593,7 +593,7 @@ GEN FqX_primitive(GEN P,GEN T,GEN p)
 	
 }
 static
-GEN FqX_Newton_log_iteration(GEN g,GEN ginv,int t1,int t2,GEN T,GEN p)
+GEN FqX_Newton_log_iteration(GEN g,GEN ginv,long t1,long t2,GEN T,GEN p)
 {
   GEN res;	
   res=FqXn_mul(FqX_deriv(g,T,p),ginv,t2-1,T,p);
@@ -601,23 +601,23 @@ GEN FqX_Newton_log_iteration(GEN g,GEN ginv,int t1,int t2,GEN T,GEN p)
   return res;
 }
 static
-GEN FqX_Newton_iteration_exp(GEN g,GEN ginv,GEN f,int t1,int t2,GEN T,GEN p)
+GEN FqX_Newton_iteration_exp(GEN g,GEN ginv,GEN f,long t1,long t2,GEN T,GEN p)
 //assumes the inverse of g is known as ginv=1/g mod x^(t2-1) and g=exp(f) mod x^t1 
 //returns exp(f) mod x^t2
 {
   return FqX_add(g,RgX_shift(FqXn_mul(g,RgX_shift(FqX_sub(f,FqX_Newton_log_iteration(g,ginv,t1,t2,T,p),T,p),-t1),t2-t1,T,p),t1),T,p);
 }
 static
-GEN FqXn_exp(GEN f,int n,GEN T,GEN p)
+GEN FqXn_exp(GEN f,long n,GEN T,GEN p)
 {
   GEN ret;
   GEN i;
   ret=mkpoln(1,Fq_ui(1,T,p));
   i=mkpoln(1,Fq_ui(1,T,p));
-  int t=find_size(n)+1;
-  int tab[t];
+  long t=find_size(n)+1;
+  long tab[t];
   find_list(tab,n);
-  int j=0;
+  long j=0;
   while(j<t-1)
   {	
   //we only have about (>=) 1/4 of the precision of the inverse at each step.(One could expect 1/2)
@@ -635,7 +635,7 @@ GEN FqXn_exp(GEN f,int n,GEN T,GEN p)
 }
 
 
-GEN find_kernel_BMSS(GEN a4,GEN a6,int l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)
+GEN find_kernel_BMSS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)
 // requires the isogeny to be separable normalized.
 // assumes l is odd and pp1 is the sum of the kernel abscissaes.
 //requires p>ell+2*BMSSPREC.
@@ -670,8 +670,8 @@ int main()
   GEN a6=mkintn(1,4);
   GEN b4=gneg(mkintn(1,7329));
   GEN b6=gneg(mkintn(1,3934));
-  int l =11;
-  int e = 6;
+  long l =11;
+  long e = 6;
   pari_printf("Premier exemple de Lercier Sirvent\nkerpoly=%Ps\n",find_kernel_LS(a4,a6,l,b4,b6,NULL,gpowgs(pp,3),pp,3));
   //EXEMPLE 2 LERCIER SIRVENT
   pp=mkintn(1,7);
