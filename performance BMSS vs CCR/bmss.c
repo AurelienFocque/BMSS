@@ -111,7 +111,7 @@ Zq_div_safe(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
 
 
 
-static GEN FqX_mul2(GEN P,GEN T,GEN p)
+static GEN FqX_double(GEN P,GEN T,GEN p)
 {
   if(T!=NULL)
   {
@@ -372,7 +372,7 @@ static GEN comp_modxn(GEN H,GEN S,long n,GEN T,GEN p)// HoS=1+a'S(x)^2+b'S(x)^3
   }
 }
 
-static GEN FqX_div2(GEN P,GEN T,GEN p)
+static GEN FqX_halve(GEN P,GEN T,GEN p)
 {
   pari_sp ltop=avma;
   if(T!=NULL)
@@ -418,7 +418,7 @@ static GEN FqXn_sqrt(GEN P,long n, GEN T,GEN p)
   {	//we compute the inverse and the sqrt at the same time, ret denotes the sqrt and i the inverse        
     k=FqX_sub(RgX_shift(FqX_modXn(P,tab[j+1],T,p),tab[j]-tab[j+1]),FqX_sqrup(ret,tab[j+1]-tab[j],T,p),T,p);
     if(j>0)
-      i=FqX_Newton_iteration_inv(i,FqX_mul2(ret,T,p),tab[j-1],tab[j],T, p);	
+      i=FqX_Newton_iteration_inv(i,FqX_double(ret,T,p),tab[j-1],tab[j],T, p);	
     ret=FqX_add(ret,RgX_shift(FqXn_mul(i,k,tab[j],T,p),tab[j+1]-tab[j]),T,p);
     j++;
   }
@@ -493,7 +493,7 @@ static GEN find_S(long m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
     D=FqX_Newton_iteration_inv(D,FqX_modXn(Dn,tab[k],T,p),tab[k-1],tab[k],T,p);
     // D=1/(G*S'^2) to the precision tab[k]
 	
-    sG=FqX_add(sG,RgX_shift(FqXn_mul(FqX_div2(isG,T,p),FqX_sub(RgX_shift(G,tab[k-1]-tab[k]),FqX_sqrup(sG,tab[k]-tab[k-1],T,p),T,p),tab[k-1],T,p),tab[k]-tab[k-1]),T,p);
+    sG=FqX_add(sG,RgX_shift(FqXn_mul(FqX_halve(isG,T,p),FqX_sub(RgX_shift(G,tab[k-1]-tab[k]),FqX_sqrup(sG,tab[k]-tab[k-1],T,p),T,p),tab[k-1],T,p),tab[k]-tab[k-1]),T,p);
     //computes sqrt(G) to the precision tab[k]
 
     isG=FqX_Newton_iteration_inv(isG,sG,tab[k-1],tab[k],T,p);
@@ -519,7 +519,7 @@ static GEN find_S(long m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
 
   D=FqX_Newton_iteration_inv(D,FqX_modXn(Dn,tab[k],T,p),tab[k-1],tab[k],T,p);	
 
-  sG=FqX_add(sG,RgX_shift(FqXn_mul(FqX_div2(isG,T,p),FqX_sub(RgX_shift(G,tab[k-1]-tab[k]),FqX_sqrup(sG,tab[k]-tab[k-1],T,p),T,p),tab[k-1],T,p),tab[k]-tab[k-1]),T,p);
+  sG=FqX_add(sG,RgX_shift(FqXn_mul(FqX_halve(isG,T,p),FqX_sub(RgX_shift(G,tab[k-1]-tab[k]),FqX_sqrup(sG,tab[k]-tab[k-1],T,p),T,p),tab[k-1],T,p),tab[k]-tab[k-1]),T,p);
   isG=FqX_Newton_iteration_inv(isG,sG,tab[k-1],tab[k],T,p);
   //
 
@@ -733,7 +733,7 @@ GEN find_kernel_BMSS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)
   Ge=normalizepol(Ge);
   printf("[%d,%f],",l,(double)(clock()-tmp)/CLOCKS_PER_SEC);
   temps_kernel+=clock()-tmp;
-  if(lg(Ge)==(l-1)/2+3){return gerepile(ltop,avma,Ge);}
+  if(lg(Ge)==(l-1)/2+3){return gerepileupto(ltop,Ge);}
   else{avma=ltop;return NULL;}
 	
 }
@@ -1317,7 +1317,6 @@ find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, ulong lambda, GEN hq, 
 static GEN
 find_kernel(GEN a4, GEN a6, ulong ell, GEN a4t, GEN a6t, GEN pp1, GEN T, GEN p, GEN pp, long e)
 {
-  clock_t tmp=clock();
   const long ext = 2;
   pari_sp ltop = avma, btop;
   GEN P, v, tlist, h;
@@ -1371,9 +1370,6 @@ find_kernel(GEN a4, GEN a6, ulong ell, GEN a4t, GEN a6t, GEN pp1, GEN T, GEN p, 
       s = Fq_add(s, Fq_mul(gel(tlist, dim-i-1), gel(v, k-i+1), T, p), T, p);
     gel(tlist, dim-k-1) = gerepileupto(btop, Zq_Z_div_safe(s, stoi(-k), T, p, pp, e));
   }
-  temps_kernel+=clock()-tmp;
-  printf("[%d,%f],",ell,(double)(clock()-tmp)/CLOCKS_PER_SEC);
-  //le temps de calcul du polynôme de division n'est ici pas pris en compte
   for (i = 1; i <= ext; i++)
     if (signe(Fq_red(gel(tlist, i),T, pp))) { avma = ltop; return NULL; }
   h = FqX_red(RgV_to_RgX(vecslice(tlist, ext+1, dim-1), 0),T,p);
@@ -1481,7 +1477,7 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
       if(e>1)
     	  h = find_kernel_LS(a4, a6, ell, a4t, a6t, pp1, T, p, pp, e);
       else
-        {h = find_kernel(a4, a6, ell, a4t, a6t, pp1, T, p,pp,e);}
+        {h = find_kernel_BMSS(a4, a6, ell, a4t, a6t, pp1, T, p);}
       if (h) return gerepilecopy(ltop, mkvec3(a4t, a6t, h));
     }
   }
@@ -1571,7 +1567,7 @@ find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN 
   if(e>1)
     h = find_kernel_LS(a4, a6, ell, a4tilde, a6tilde, p_1, T, p, pp, e);
   else
-    h = find_kernel(a4, a6, ell, a4tilde, a6tilde, p_1, T, p,pp,e);
+    h = find_kernel_BMSS(a4, a6, ell, a4tilde, a6tilde, p_1, T, p);
   if (!h) return NULL;
   return gerepilecopy(ltop, mkvec3(a4tilde, a6tilde, h));
 }
@@ -1737,7 +1733,7 @@ find_isogenous_from_J(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T
   if(e>1)
     h = find_kernel_LS(a4, a6, ell, a4tilde, a6tilde, p_1, T, p, pp, e);
   else
-    h = find_kernel(a4, a6, ell, a4tilde, a6tilde, p_1, T, p,pp,e);
+    h = find_kernel_BMSS(a4, a6, ell, a4tilde, a6tilde, p_1, T, p);
   if (!h) return NULL;
   return gerepilecopy(ltop, mkvec3(a4tilde, a6tilde, h));
 }
