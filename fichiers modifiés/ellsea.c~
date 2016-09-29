@@ -334,6 +334,75 @@ GEN FqX_NewtonGen(GEN S,long l,GEN a4,GEN a6,GEN pp1,GEN T,GEN p)
 	
   return Ge;
 }
+static 
+GEN FqX_primitive(GEN P,GEN T,GEN p)
+{
+
+  long d=lg(P)-3;
+  if(d==-1)
+  {
+    return mkpoln(1,Fq_ui(0,T,p));
+  }
+  GEN ret=cgetg(lg(P)+1,t_POL);
+  gel(ret,2)=Fq_ui(0,T,p);
+  long k=1;
+  while(k<=lg(P)-2)
+  {
+    gel(ret,2+k)=Fq_mul(Fq_inv(Fq_ui(k,T,p),T,p),gel(P,2+k-1),T,p);
+    k++;
+  }
+  return ret;
+	
+}
+static
+GEN FqXn_log(GEN g,long n,GEN T,GEN p)
+{
+  GEN res;
+  res=FqXn_mul(FqX_deriv(g,T,p),FqXn_inv(g,n-1,T,p),n-1,T,p);
+  res=FqX_primitive(res,T,p);
+  return res;
+}
+static
+GEN FqX_Newton_log_iteration(GEN g,GEN ginv,long t1,long t2,GEN T,GEN p)
+{
+  GEN res;	
+  res=FqXn_mul(FqX_deriv(g,T,p),ginv,t2-1,T,p);
+  res=FqX_primitive(res,T,p);
+  return res;
+}
+static
+GEN FqX_Newton_iteration_exp(GEN g,GEN ginv,GEN f,long t1,long t2,GEN T,GEN p)
+//assumes the inverse of g is known as ginv=1/g mod x^(t2-1) and g=exp(f) mod x^t1 
+//returns exp(f) mod x^t2
+{
+  return FqX_add(g,RgX_shift(FqXn_mul(g,RgX_shift(FqX_sub(f,FqX_Newton_log_iteration(g,ginv,t1,t2,T,p),T,p),-t1),t2-t1,T,p),t1),T,p);
+}
+static
+GEN FqXn_exp(GEN f,long n,GEN T,GEN p)
+{ pari_sp ltop=avma;
+  GEN ret;
+  GEN i;
+  ret=mkpoln(1,Fq_ui(1,T,p));
+  i=mkpoln(1,Fq_ui(1,T,p));
+  long t=find_size(n)+1;
+  long tab[t];
+  find_list(tab,n);
+  long j=0;
+  while(j<t-1)
+  {	
+  //we only have about (>=) 1/4 of the precision of the inverse at each step.(One could expect 1/2)
+  //However this is quicker to calculate only 2 inverse iterations than the whole thing.
+    if(j>0)
+    {
+      i=FqX_modXn(i,tab[j-1],T,p);
+      i=FqX_Newton_iteration_inv(i,ret,tab[j-1],tab[j],T,p);
+      i=FqX_Newton_iteration_inv(i,ret,tab[j],tab[j+1]-1,T,p);
+    }
+    ret=FqX_Newton_iteration_exp(ret,i,f,tab[j],tab[j+1],T,p);
+    j++;
+  }
+  return gerepile(ltop,avma,ret);
+}
 
 
 GEN find_kernel_BMSS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)

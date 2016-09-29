@@ -2409,7 +2409,7 @@ GEN Fq_ui(long k,GEN T,GEN p)
     return mkpoln(1,mkintn(1,k));
 }
 
-GEN FqX_mul2(GEN P,GEN T,GEN p)
+GEN FqX_double(GEN P,GEN T,GEN p)
 {
   if(T!=NULL)
   {
@@ -2423,7 +2423,7 @@ GEN FqX_mul2(GEN P,GEN T,GEN p)
   return ret;
 }
 
-GEN FqX_modXn(GEN P,long n,GEN T,GEN p)
+static GEN FqX_modXn(GEN P,long n,GEN T,GEN p)// works in Fq
 {	
   if(T!=NULL)
   {
@@ -2444,7 +2444,6 @@ GEN FqX_modXn(GEN P,long n,GEN T,GEN p)
     gel(ret,2+k)=mkintn(1,0);
     k++;
   }
-  gerepileupto(avma,ret);
   return RgX_to_FpX(ret,p);
 }
 static 
@@ -2518,7 +2517,8 @@ GEN RgXn_sqr_basecase(GEN P,long n)
 
 static GEN FqXn_mul_karatsuba(GEN P,GEN Q,long n,GEN T,GEN p)
 //doesn't reduce coefficients to be faster, they will be reduced in FqXn_mul
-{	
+{
+  pari_sp ltop=avma;	
   long s=RgX_equal(P,mkpoln(1,gen_0))||RgX_equal(Q,mkpoln(1,gen_0));
   if(T==NULL)
   {
@@ -2547,18 +2547,27 @@ static GEN FqXn_mul_karatsuba(GEN P,GEN Q,long n,GEN T,GEN p)
   GEN tmp3=FqXn_mul_karatsuba(FqX_modXn(P2,n-B,T,p),Q1,n-B,T,p);
   ret=RgX_add(tmp,RgX_add(RgX_shift(tmp2,B),RgX_shift(tmp3,B)));
   gerepileupto(avma,ret);
-  return ret;
+  return gerepileupto(ltop,ret);
 }
 static GEN FqXn_sqr_karatsuba(GEN P,long n,GEN T,GEN p)
 //doesn't reduce coefficients to be faster, they will be reduced in FqXn_mul
 {	
+  pari_sp ltop=avma;
   long s=RgX_equal(P,mkpoln(1,gen_0));
- 
-	if(s){return mkpoln(1,Fq_ui(0,T,p));}
-	if (2*degpol(P)  < n) 
-	  return RgX_sqr(P);
-	if(n<35)
-	  return RgXn_sqr_basecase(P,n);
+  if(T==NULL)
+  {
+    if(s){return mkpoln(1,gen_0);}
+    if (2*degpol(P)  < n) return RgX_sqr(P);
+    if(n<35)
+      return RgXn_sqr_basecase(P,n);
+  }
+  else
+  {
+    if(s){return mkpoln(1,mkpoln(1,gen_0));}
+    if (2*degpol(P)  < n) return RgX_sqr(P);
+    if(n<35)
+      return RgXn_sqr_basecase(P,n);
+  }
   long B=(7*n)/10;
   GEN ret;
   GEN P1=RgX_shift(FqX_modXn(P,n,T,p),-B);
@@ -2568,8 +2577,7 @@ static GEN FqXn_sqr_karatsuba(GEN P,long n,GEN T,GEN p)
   tmp=FqX_modXn(tmp,n,T,p);
   GEN tmp2=FqXn_mul_karatsuba(P1,FqX_modXn(P2,n-B,T,p),n-B,T,p);
   ret=RgX_add(tmp,RgX_muls(RgX_shift(tmp2,B),2));
-  gerepileupto(avma,ret);
-  return ret;
+  return gerepileupto(ltop,ret);
 }
 GEN FqXn_mul(GEN f, GEN g, long n,GEN T,GEN p)
 {
@@ -2585,8 +2593,9 @@ GEN FqXn_sqr(GEN f, long n,GEN T,GEN p)
   else if(n<80){ret=FqX_red(FqXn_sqr_karatsuba(f,n,T,p),T,p);setvarn(ret,0);return ret;}
   else{return FqX_modXn(FqX_sqr(f,T,p),n,T,p);}
 }
-GEN FqX_div2(GEN P,GEN T,GEN p)
-{	
+static GEN FqX_halve(GEN P,GEN T,GEN p)
+{
+  pari_sp ltop=avma;
   if(T!=NULL)
   {
     return FqX_Fq_mul(P,Fq_inv(mkpoln(1,gen_2),T,p),T,p);
@@ -2609,8 +2618,8 @@ GEN FqX_div2(GEN P,GEN T,GEN p)
     }
 
   }
-  gerepileupto(avma,ret);
-  return ret;
+  
+  return gerepileupto(ltop,ret);
 }
 
 GEN FqX_mulup(GEN P,GEN Q,long n,GEN T,GEN p)
@@ -2680,9 +2689,10 @@ static void find_list(long *list,long l)
     }
     return;
 }
-GEN FqXn_sqrt(GEN P,long n, GEN T,GEN p)
+static GEN FqXn_sqrt(GEN P,long n, GEN T,GEN p)
 // requires find_list,find_size and FqX_Newton_iteration_inv
 {
+  pari_sp ltop=avma;
   if(Fq_issquare(gel(P,2),T,p)==0)
     return NULL;
   GEN ret;
@@ -2697,12 +2707,11 @@ GEN FqXn_sqrt(GEN P,long n, GEN T,GEN p)
   {	//we compute the inverse and the sqrt at the same time, ret denotes the sqrt and i the inverse        
     k=FqX_sub(RgX_shift(FqX_modXn(P,tab[j+1],T,p),tab[j]-tab[j+1]),FqX_sqrup(ret,tab[j+1]-tab[j],T,p),T,p);
     if(j>0)
-      i=FqX_Newton_iteration_inv(i,FqX_mul2(ret,T,p),tab[j-1],tab[j],T, p);	
+      i=FqX_Newton_iteration_inv(i,FqX_double(ret,T,p),tab[j-1],tab[j],T, p);	
     ret=FqX_add(ret,RgX_shift(FqXn_mul(i,k,tab[j],T,p),tab[j+1]-tab[j]),T,p);
     j++;
   }
-  gerepileupto(avma,ret);
-  return ret;  
+  return gerepileupto(ltop,ret);  
 }
 GEN FqXn_inv(GEN P, long n,GEN T,GEN p)
 {  
@@ -2761,8 +2770,9 @@ GEN FqX_Newton_iteration_exp(GEN g,GEN ginv,GEN f,long t1,long t2,GEN T,GEN p)
 {
   return FqX_add(g,RgX_shift(FqXn_mul(g,RgX_shift(FqX_sub(f,FqX_Newton_log_iteration(g,ginv,t1,t2,T,p),T,p),-t1),t2-t1,T,p),t1),T,p);
 }
+static
 GEN FqXn_exp(GEN f,long n,GEN T,GEN p)
-{
+{ pari_sp ltop=avma;
   GEN ret;
   GEN i;
   ret=mkpoln(1,Fq_ui(1,T,p));
@@ -2784,5 +2794,5 @@ GEN FqXn_exp(GEN f,long n,GEN T,GEN p)
     ret=FqX_Newton_iteration_exp(ret,i,f,tab[j],tab[j+1],T,p);
     j++;
   }
-  return ret;
+  return gerepile(ltop,avma,ret);
 }
