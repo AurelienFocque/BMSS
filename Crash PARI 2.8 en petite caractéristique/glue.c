@@ -98,25 +98,21 @@ Zq_Z_div_safe(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
 
 static GEN
 Zq_div_safe(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
-{
+{ 
+  pari_sp ltop=avma;
   if (e==1) return Fq_div(a, b, T, q);
   if(typ(b)==t_INT){return Zq_Z_div_safe(a, b, T, q, p, e);}
   GEN Q=Q_content(b);
   GEN at=Zq_Z_div_safe(a, Q, T, q, p, e);
   GEN bt=Zq_Z_div_safe(b, Q, T, q, p, e);
-  if(at==NULL){gerepileupto(avma,0);return NULL;}
+  if(at==NULL){ltop=avma;return NULL;}
   Q=Fq_div(at, bt, T, q);
-  gerepileupto(avma,Q);
-  return Q;
+  return gerepileupto(ltop,Q);
 }
 
-static GEN
-ZqX_liftroot(GEN f, GEN a, GEN T, GEN p, long e)
-{
-  return T ? ZpXQX_liftroot(f, a,T , p, e): ZpX_liftroot(f, a, p, e);
-}
 
-static GEN FqX_mul2(GEN P,GEN T,GEN p)
+
+static GEN FqX_double(GEN P,GEN T,GEN p)
 {
   if(T!=NULL)
   {
@@ -141,7 +137,7 @@ static GEN FqX_modXn(GEN P,long n,GEN T,GEN p)// works in Fq
       gel(ret,2+k)=mkpoln(1,gen_0);
       k++;
     }
-    gerepileupto(avma,ret);
+    
     return FqX_red(ret,T,p);
   }
   GEN ret=RgX_copy(P);
@@ -151,7 +147,6 @@ static GEN FqX_modXn(GEN P,long n,GEN T,GEN p)// works in Fq
     gel(ret,2+k)=mkintn(1,0);
     k++;
   }
-  gerepileupto(avma,ret);
   return RgX_to_FpX(ret,p);
 }
 static 
@@ -225,7 +220,8 @@ GEN RgXn_sqr_basecase(GEN P,long n)
 
 static GEN FqXn_mul_karatsuba(GEN P,GEN Q,long n,GEN T,GEN p)
 //doesn't reduce coefficients to be faster, they will be reduced in FqXn_mul
-{	
+{
+  pari_sp ltop=avma;	
   long s=RgX_equal(P,mkpoln(1,gen_0))||RgX_equal(Q,mkpoln(1,gen_0));
   if(T==NULL)
   {
@@ -254,11 +250,12 @@ static GEN FqXn_mul_karatsuba(GEN P,GEN Q,long n,GEN T,GEN p)
   GEN tmp3=FqXn_mul_karatsuba(FqX_modXn(P2,n-B,T,p),Q1,n-B,T,p);
   ret=RgX_add(tmp,RgX_add(RgX_shift(tmp2,B),RgX_shift(tmp3,B)));
   gerepileupto(avma,ret);
-  return ret;
+  return gerepileupto(ltop,ret);
 }
 static GEN FqXn_sqr_karatsuba(GEN P,long n,GEN T,GEN p)
 //doesn't reduce coefficients to be faster, they will be reduced in FqXn_mul
 {	
+  pari_sp ltop=avma;
   long s=RgX_equal(P,mkpoln(1,gen_0));
   if(T==NULL)
   {
@@ -283,8 +280,7 @@ static GEN FqXn_sqr_karatsuba(GEN P,long n,GEN T,GEN p)
   tmp=FqX_modXn(tmp,n,T,p);
   GEN tmp2=FqXn_mul_karatsuba(P1,FqX_modXn(P2,n-B,T,p),n-B,T,p);
   ret=RgX_add(tmp,RgX_muls(RgX_shift(tmp2,B),2));
-  gerepileupto(avma,ret);
-  return ret;
+  return gerepileupto(ltop,ret);
 }
 static 
 GEN FqXn_mul(GEN f, GEN g, long n,GEN T,GEN p)
@@ -348,6 +344,7 @@ static GEN FqX_Newton_iteration_inv(GEN I,GEN P,long t1,long t2,GEN T,GEN p)
 }
 static GEN comp_modxn(GEN H,GEN S,long n,GEN T,GEN p)// HoS=1+a'S(x)^2+b'S(x)^3 
 {	
+  pari_sp ltop=avma;
   clock_t tmp2=clock();	
   GEN ret;
   GEN tmpol;
@@ -358,7 +355,7 @@ static GEN comp_modxn(GEN H,GEN S,long n,GEN T,GEN p)// HoS=1+a'S(x)^2+b'S(x)^3
     ret=FqX_add(FqX_Fq_add(FqX_Fq_mul(tmpol,gel(H,4),T,p),gen_1,T,p),FqX_Fq_mul(ret,gel(H,5),T,p),T,p);
     ret=FqXn_mul(ret,RgX_shift(S,-1),n,T,p);
     gerepileupto(avma,ret);temps_comp+=clock()-tmp2;
-    return ret;
+    return gerepileupto(ltop,ret);
   }
   if(lg(H)==5)
   {
@@ -366,18 +363,19 @@ static GEN comp_modxn(GEN H,GEN S,long n,GEN T,GEN p)// HoS=1+a'S(x)^2+b'S(x)^3
     ret=FqX_Fq_add(FqX_Fq_mul(tmpol,gel(H,4),T,p),gen_1,T,p);
     ret=FqXn_mul(ret,RgX_shift(S,-1),n,T,p);
     gerepileupto(avma,ret);temps_comp+=clock()-tmp2;
-    return ret;
+    return gerepileupto(ltop,ret);
   }
   else
   {
     ret=FqXn_mul(ret,RgX_shift(S,-1),n,T,p);
     gerepileupto(avma,ret);temps_comp+=clock()-tmp2;
-    return ret;
+    return gerepileupto(ltop,ret);
   }
 }
 
-static GEN FqX_div2(GEN P,GEN T,GEN p)
-{	
+static GEN FqX_halve(GEN P,GEN T,GEN p)
+{
+  pari_sp ltop=avma;
   if(T!=NULL)
   {
     return FqX_Fq_mul(P,Fq_inv(mkpoln(1,gen_2),T,p),T,p);
@@ -400,12 +398,13 @@ static GEN FqX_div2(GEN P,GEN T,GEN p)
     }
 
   }
-  gerepileupto(avma,ret);
-  return ret;
+  
+  return gerepileupto(ltop,ret);
 }
 static GEN FqXn_sqrt(GEN P,long n, GEN T,GEN p)
 // requires find_list,find_size and FqX_Newton_iteration_inv
 {
+  pari_sp ltop=avma;
   if(Fq_issquare(gel(P,2),T,p)==0)
     return NULL;
   GEN ret;
@@ -420,12 +419,11 @@ static GEN FqXn_sqrt(GEN P,long n, GEN T,GEN p)
   {	//we compute the inverse and the sqrt at the same time, ret denotes the sqrt and i the inverse        
     k=FqX_sub(RgX_shift(FqX_modXn(P,tab[j+1],T,p),tab[j]-tab[j+1]),FqX_sqrup(ret,tab[j+1]-tab[j],T,p),T,p);
     if(j>0)
-      i=FqX_Newton_iteration_inv(i,FqX_mul2(ret,T,p),tab[j-1],tab[j],T, p);	
+      i=FqX_Newton_iteration_inv(i,FqX_double(ret,T,p),tab[j-1],tab[j],T, p);	
     ret=FqX_add(ret,RgX_shift(FqXn_mul(i,k,tab[j],T,p),tab[j+1]-tab[j]),T,p);
     j++;
   }
-  gerepileupto(avma,ret);
-  return ret;  
+  return gerepileupto(ltop,ret);  
 }
 static GEN FqXn_inv(GEN P, long n,GEN T,GEN p)
 {  
@@ -460,8 +458,6 @@ static GEN poly_integrale(GEN P,GEN T,GEN p,GEN pp,long e)
     if(gel(ret,2+k+1)==NULL){return NULL;}
     k++;
   }
-
-  //pari_printf("ret=%Ps\n",ret);
   return ret;
 }
 static GEN find_S(long m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
@@ -469,6 +465,7 @@ static GEN find_S(long m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
 // requires p<2*m+1
 //returns the approximation of the taylor serie solution of G*(S'^2)=(S/x)*(HoS) mod x^m
 {   
+  pari_sp ltop=avma;
   clock_t tmp=clock();	
   GEN S;
   GEN ki;
@@ -495,7 +492,7 @@ static GEN find_S(long m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
     D=FqX_Newton_iteration_inv(D,FqX_modXn(Dn,tab[k],T,p),tab[k-1],tab[k],T,p);
     // D=1/(G*S'^2) to the precision tab[k]
 	
-    sG=FqX_add(sG,RgX_shift(FqXn_mul(FqX_div2(isG,T,p),FqX_sub(RgX_shift(G,tab[k-1]-tab[k]),FqX_sqrup(sG,tab[k]-tab[k-1],T,p),T,p),tab[k-1],T,p),tab[k]-tab[k-1]),T,p);
+    sG=FqX_add(sG,RgX_shift(FqXn_mul(FqX_halve(isG,T,p),FqX_sub(RgX_shift(G,tab[k-1]-tab[k]),FqX_sqrup(sG,tab[k]-tab[k-1],T,p),T,p),tab[k-1],T,p),tab[k]-tab[k-1]),T,p);
     //computes sqrt(G) to the precision tab[k]
 
     isG=FqX_Newton_iteration_inv(isG,sG,tab[k-1],tab[k],T,p);
@@ -506,7 +503,7 @@ static GEN find_S(long m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
     //ki=((S/x)*HoS-*GS'^2)*D*isG using the fact that x^tab[k]-1 | (S/x)*HoS-*GS'^2
     // NB: there may be a way to calculate ki quicker computing only the high degree terms
     K=poly_integrale(ki,T,p,pp,e);
-    if (K==NULL){return NULL;}
+    if (K==NULL){ltop=avma;return NULL;}
     S=FqX_add(S,RgX_shift(FqXn_mul(FqXn_mul(RgX_shift(K,-tab[k]),sG,tab[k+1]+1-tab[k],T,p),FqX_deriv(S,T,p),tab[k+1]+1-tab[k],T,p),tab[k]),T,p);
 
     //S=S+K*sG*S' since K=x^tab[k]*B via a shift we can compute mod x^tab[k+1]-tab[k]
@@ -521,20 +518,20 @@ static GEN find_S(long m,GEN G,GEN H,GEN T,GEN p,GEN pp,long e)
 
   D=FqX_Newton_iteration_inv(D,FqX_modXn(Dn,tab[k],T,p),tab[k-1],tab[k],T,p);	
 
-  sG=FqX_add(sG,RgX_shift(FqXn_mul(FqX_div2(isG,T,p),FqX_sub(RgX_shift(G,tab[k-1]-tab[k]),FqX_sqrup(sG,tab[k]-tab[k-1],T,p),T,p),tab[k-1],T,p),tab[k]-tab[k-1]),T,p);
+  sG=FqX_add(sG,RgX_shift(FqXn_mul(FqX_halve(isG,T,p),FqX_sub(RgX_shift(G,tab[k-1]-tab[k]),FqX_sqrup(sG,tab[k]-tab[k-1],T,p),T,p),tab[k-1],T,p),tab[k]-tab[k-1]),T,p);
   isG=FqX_Newton_iteration_inv(isG,sG,tab[k-1],tab[k],T,p);
   //
 
   ki=RgX_shift(FqXn_mul(RgX_shift(FqX_sub(comp_modxn(H,S,tab[k+1]-1,T,p),Dn,T,p),-tab[k]+1),FqXn_mul(D,isG,tab[k+1]-tab[k],T,p),tab[k+1]-tab[k],T,p),tab[k]-1);
 
   K=poly_integrale(ki,T,p,pp,e);
-  if (K==NULL){return NULL;}
+  if (K==NULL){ltop=avma;return NULL;}
   S=FqX_add(S,RgX_shift(FqXn_mul(FqXn_mul(RgX_shift(K,-tab[k]),sG,tab[k+1]-tab[k],T,p),FqX_deriv(S,T,p),tab[k+1]-tab[k],T,p),tab[k]),T,p);
     
-  gerepileupto(avma,S);
+  
   temps_equadiff+=clock()-tmp;
 
-  return S;
+  return gerepileupto(ltop,S);
 }
 static GEN D_from_euclide_truncated(GEN R,long l,GEN T, GEN p)
 //suitable for Fq
@@ -559,13 +556,14 @@ static GEN D_from_euclide_truncated(GEN R,long l,GEN T, GEN p)
   if(Fq_issquare(gel(r1,2),T,p)==0){temps_euclide+=clock()-tmpt;gerepileall(ltop,0);return NULL;}
   gerepileupto(avma,r1);
   temps_euclide+=clock()-tmpt;
-  return r1;
+  return gerepileupto(ltop,r1);
 }
 
 static GEN D_from_HGCD(GEN R,long l,GEN T, GEN p)
 // given R=D.reverse()/N.reverse() mod x^2l return D
 // not suitable for Fq
 {
+  pari_sp ltop=avma;
   clock_t tmpt=clock();
   GEN ret;
   GEN r1=R;
@@ -577,13 +575,12 @@ static GEN D_from_HGCD(GEN R,long l,GEN T, GEN p)
   ret=FqX_normalize(RgX_recip(ret),T,p);
   if(Fq_issquare(gel(ret,2),T,p)==0)
   {
-    gerepileupto(avma,0);
+    ltop=avma;
     temps_euclide+=clock()-tmpt;
     return NULL;
   }
-  gerepileupto(avma,ret);
   temps_euclide+=clock()-tmpt;
-  return ret;
+  return gerepileupto(ltop,ret);
 }
 GEN find_kernel_LS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p,GEN pp,long e)
 //requires both the isogeny to be normalized and separable.
@@ -592,7 +589,8 @@ GEN find_kernel_LS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p,GEN pp
 //returns the kernelpolynomial.
 {   
   clock_t tmp=clock();
-  pari_sp ltop=avma;
+  pari_sp ltop=avma; 
+  GEN D;
   GEN G,H;
   G=mkpoln(4,a6,a4,Fq_ui(0,T,p),Fq_ui(1,T,p));
   H=mkpoln(4,b6,b4,Fq_ui(0,T,p),Fq_ui(1,T,p));
@@ -600,19 +598,18 @@ GEN find_kernel_LS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p,GEN pp
   if(S==NULL){return NULL;}
   GEN R=RgX_shift(S,-1);
   R=FqX_red(R,T,pp);
-  GEN D;
+ 
   if(l<120)
     D=D_from_euclide_truncated(R,l,T,pp);
   if(l>=120)
     D=D_from_HGCD(R,l,T,pp);	
-  if(D==NULL){temps_kernel+=clock()-tmp;return NULL;}
+  if(D==NULL){temps_kernel+=clock()-tmp;avma=ltop;return NULL;}
   D=FqXn_sqrt(D,l,T,pp);
   D=FqX_normalize(D,T,pp);	
   if(degree(D)!=(l-1)/2){temps_kernel+=clock()-tmp;gerepileupto(ltop,0);return NULL;}
-  gerepileupto(avma,D);
   printf("[%d,%f],",l,(double)(clock()-tmp)/CLOCKS_PER_SEC);
   temps_kernel+=clock()-tmp;
-  return D;
+  return gerepile(ltop,avma,D);
 }
 static
 GEN FqX_NewtonGen(GEN S,long l,GEN a4,GEN a6,GEN pp1,GEN T,GEN p)
@@ -684,7 +681,7 @@ GEN FqX_Newton_iteration_exp(GEN g,GEN ginv,GEN f,long t1,long t2,GEN T,GEN p)
 }
 static
 GEN FqXn_exp(GEN f,long n,GEN T,GEN p)
-{
+{ pari_sp ltop=avma;
   GEN ret;
   GEN i;
   ret=mkpoln(1,Fq_ui(1,T,p));
@@ -706,7 +703,7 @@ GEN FqXn_exp(GEN f,long n,GEN T,GEN p)
     ret=FqX_Newton_iteration_exp(ret,i,f,tab[j],tab[j+1],T,p);
     j++;
   }
-  return ret;
+  return gerepile(ltop,avma,ret);
 }
 
 
@@ -714,7 +711,7 @@ GEN find_kernel_BMSS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)
 // requires the isogeny to be separable normalized.
 // assumes l is odd and pp1 is the sum of the kernel abscissaes.
 //requires p>ell+2*BMSSPREC.
-{	
+{  pari_sp ltop=avma;
   clock_t tmp=clock();
   //BMSSPREC denotes the number of extra coefficients calculated to check the result.
   if(l==3)
@@ -735,8 +732,8 @@ GEN find_kernel_BMSS(GEN a4,GEN a6,long l,GEN b4,GEN b6,GEN pp1,GEN T,GEN p)
   Ge=normalizepol(Ge);
   printf("[%d,%f],",l,(double)(clock()-tmp)/CLOCKS_PER_SEC);
   temps_kernel+=clock()-tmp;
-  if(lg(Ge)==(l-1)/2+3){return Ge;}
-  else{return NULL;}
+  if(lg(Ge)==(l-1)/2+3){return gerepile(ltop,avma,Ge);}
+  else{avma=ltop;return NULL;}
 	
 }
 
